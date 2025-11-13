@@ -8,19 +8,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'game-bg': '#0F1117',
+        'game-bg': '#0F1116',
         'game-card': '#1A1D29',
         'game-border': '#2A2D3A',
         'gold': '#FFD700',
-        'neon-green': '#00FF9C',
-        'neon-blue': '#00D4FF',
-        'neon-purple': '#B794F4',
         'red-win': '#FF4655',
-        'green-win': '#00FF88',
+        'green-win': '#00FF9C',
+        'blue-rare': '#4B69FF',
+        'purple-epic': '#8847FF',
       },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Orbitron', 'sans-serif'],
+      backgroundImage: {
+        'gradient-gold': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
     },
   },
