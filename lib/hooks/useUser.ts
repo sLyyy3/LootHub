@@ -7,7 +7,7 @@ import { useUserStore } from '@/lib/stores/userStore'
 export function useUser() {
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const { setUser: setStoreUser } = useUserStore()
+  const { coins: storeCoins, xp: storeXp, level: storeLevel, setUser: setStoreUser } = useUserStore()
 
   useEffect(() => {
     loadUser()
@@ -20,6 +20,13 @@ export function useUser() {
       authListener.subscription.unsubscribe()
     }
   }, [])
+
+  // Sync local user state with Zustand store changes
+  useEffect(() => {
+    if (user && (user.coins !== storeCoins || user.xp !== storeXp || user.level !== storeLevel)) {
+      setUser({ ...user, coins: storeCoins, xp: storeXp, level: storeLevel })
+    }
+  }, [storeCoins, storeXp, storeLevel])
 
   const loadUser = async () => {
     try {
