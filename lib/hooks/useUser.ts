@@ -52,5 +52,20 @@ export function useUser() {
     await loadUser()
   }
 
-  return { user, isLoading, refreshUser }
+  const updateCoins = (newCoins: number) => {
+    if (user) {
+      setUser({ ...user, coins: newCoins })
+      setStoreUser(newCoins, user.xp, user.level)
+    }
+  }
+
+  const updateUser = (updates: Partial<any>) => {
+    if (user) {
+      const updatedUser = { ...user, ...updates }
+      setUser(updatedUser)
+      setStoreUser(updatedUser.coins, updatedUser.xp, updatedUser.level)
+    }
+  }
+
+  return { user, isLoading, refreshUser, updateCoins, updateUser }
 }

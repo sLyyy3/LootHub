@@ -7,7 +7,7 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Gamepad2, Trophy, Package, TrendingUp, Gift } from 'lucide-react'
+import { Gamepad2, Trophy, Package, TrendingUp, Gift, Swords } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
@@ -157,6 +157,13 @@ export default function DashboardPage() {
       href: '/games/cases',
       color: 'purple-epic',
     },
+    {
+      title: 'Case Battles',
+      description: 'Compete against players for the highest value!',
+      icon: Swords,
+      href: '/games/case-battles',
+      color: 'gold',
+    },
   ]
 
   return (
@@ -240,7 +247,7 @@ export default function DashboardPage() {
         {/* Games Grid */}
         <div>
           <h2 className="text-2xl font-bold mb-6">Choose Your Game</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {games.map((game) => (
               <Link key={game.href} href={game.href}>
                 <Card className="h-full hover:scale-105 transition-transform cursor-pointer">
