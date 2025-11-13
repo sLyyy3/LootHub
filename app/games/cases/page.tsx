@@ -19,11 +19,11 @@ const cases = [
     color: 'bg-gray-600',
     image: '📦',
     items: [
-      { name: 'Scratched P250', rarity: 'common', value: 30, chance: 45 },
-      { name: 'Glock Fade', rarity: 'uncommon', value: 80, chance: 35 },
-      { name: 'USP-S Guardian', rarity: 'rare', value: 150, chance: 15 },
-      { name: 'M4A4 Asiimov', rarity: 'epic', value: 300, chance: 4 },
-      { name: 'AWP Dragon Lore', rarity: 'legendary', value: 800, chance: 1 },
+      { name: 'P250 | Sand Dune', rarity: 'common', value: 30, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopujwezvEYw' },
+      { name: 'Glock-18 | Fade', rarity: 'uncommon', value: 80, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3djFN79eJnJm0k' },
+      { name: 'USP-S | Guardian', rarity: 'rare', value: 150, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m1FBRp3_bGcjhQ09Sv' },
+      { name: 'M4A4 | Asiimov', rarity: 'epic', value: 300, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alDL_Dl' },
+      { name: 'AWP | Dragon Lore', rarity: 'legendary', value: 800, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6-fkGRD6dNOh' },
     ],
   },
   {
@@ -33,11 +33,11 @@ const cases = [
     color: 'bg-green-600',
     image: '🎁',
     items: [
-      { name: 'AK-47 Redline', rarity: 'common', value: 80, chance: 50 },
-      { name: 'M4A1-S Hyper Beast', rarity: 'uncommon', value: 200, chance: 30 },
-      { name: 'AWP Lightning Strike', rarity: 'rare', value: 400, chance: 15 },
-      { name: 'Karambit Damascus', rarity: 'epic', value: 800, chance: 4 },
-      { name: 'Dragon King AK', rarity: 'legendary', value: 1500, chance: 1 },
+      { name: 'AK-47 | Redline', rarity: 'common', value: 80, chance: 50, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqP' },
+      { name: 'M4A1-S | Hyper Beast', rarity: 'uncommon', value: 200, chance: 30, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uOxh7-Gw_alfqj' },
+      { name: 'AWP | Lightning Strike', rarity: 'rare', value: 400, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7lZKKqPv9NLPF' },
+      { name: '★ Karambit | Damascus Steel', rarity: 'epic', value: 800, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJlY20k_jkI6_T' },
+      { name: 'AK-47 | Fire Serpent', rarity: 'legendary', value: 1500, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV092lnYmGmOHLP7LWnn8fvZNz2e' },
     ],
   },
   {
@@ -47,11 +47,11 @@ const cases = [
     color: 'bg-blue-600',
     image: '💎',
     items: [
-      { name: 'Butterfly Knife', rarity: 'uncommon', value: 400, chance: 40 },
-      { name: 'Karambit Fade', rarity: 'rare', value: 900, chance: 35 },
-      { name: 'M4A4 Howl', rarity: 'epic', value: 2000, chance: 20 },
-      { name: 'AWP Medusa', rarity: 'legendary', value: 4500, chance: 4 },
-      { name: 'Souvenir Dragon Lore', rarity: 'mythic', value: 12000, chance: 1 },
+      { name: '★ Butterfly Knife | Vanilla', rarity: 'uncommon', value: 400, chance: 40, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqO' },
+      { name: '★ Karambit | Fade', rarity: 'rare', value: 900, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: 'M4A4 | Howl', rarity: 'epic', value: 2000, chance: 20, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09-5lpKKqPv9N' },
+      { name: 'AWP | Medusa', rarity: 'legendary', value: 4500, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FABz7PLfYQJS5NO0m5O0' },
+      { name: 'AWP | Dragon Lore (Souvenir)', rarity: 'mythic', value: 12000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6_ummpD78A_3L6YoY2h0VHgqkc' },
     ],
   },
   {
@@ -61,11 +61,11 @@ const cases = [
     color: 'bg-purple-600',
     image: '⚡',
     items: [
-      { name: 'Bayonet Doppler', rarity: 'rare', value: 1200, chance: 45 },
-      { name: 'Karambit Tiger Tooth', rarity: 'epic', value: 2500, chance: 35 },
-      { name: 'M9 Bayonet Crimson Web', rarity: 'legendary', value: 6000, chance: 15 },
-      { name: 'Butterfly Sapphire', rarity: 'mythic', value: 18000, chance: 4 },
-      { name: 'Factory New Dragon Lore', rarity: 'divine', value: 60000, chance: 1 },
+      { name: '★ Bayonet | Doppler', rarity: 'rare', value: 1200, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotLu8JAllx8zJfAFJ6dO7kZSEk' },
+      { name: '★ Karambit | Tiger Tooth', rarity: 'epic', value: 2500, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: '★ M9 Bayonet | Crimson Web', rarity: 'legendary', value: 6000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr3czxb49KzgL-KkP' },
+      { name: '★ Butterfly Knife | Doppler Sapphire', rarity: 'mythic', value: 18000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqP76DLfY' },
+      { name: 'AWP | Dragon Lore (Factory New)', rarity: 'divine', value: 60000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6-fw2pXu8B' },
     ],
   },
   {
@@ -75,11 +75,11 @@ const cases = [
     color: 'bg-yellow-600',
     image: '👑',
     items: [
-      { name: 'Karambit Lore', rarity: 'rare', value: 3000, chance: 45 },
-      { name: 'M9 Marble Fade', rarity: 'epic', value: 6000, chance: 35 },
-      { name: 'Karambit Fade FN', rarity: 'legendary', value: 12000, chance: 15 },
-      { name: 'Howl FN Stattrak', rarity: 'mythic', value: 30000, chance: 4 },
-      { name: 'Blue Gem Karambit', rarity: 'divine', value: 100000, chance: 1 },
+      { name: '★ Karambit | Lore', rarity: 'rare', value: 3000, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: '★ M9 Bayonet | Marble Fade', rarity: 'epic', value: 6000, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr4YzxO_uO1gb-Gw_' },
+      { name: '★ Karambit | Fade (Factory New)', rarity: 'legendary', value: 12000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: 'M4A4 | Howl (StatTrak™ FN)', rarity: 'mythic', value: 30000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09-5lpKKqPv9NrfQhFRd4cJ5nqe' },
+      { name: '★ Karambit | Case Hardened (Blue Gem)', rarity: 'divine', value: 100000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
     ],
   },
   {
@@ -89,11 +89,11 @@ const cases = [
     color: 'bg-red-600',
     image: '🔥',
     items: [
-      { name: 'Sport Gloves Pandora', rarity: 'epic', value: 8000, chance: 45 },
-      { name: 'Karambit Ruby', rarity: 'legendary', value: 18000, chance: 35 },
-      { name: 'M9 Sapphire', rarity: 'mythic', value: 40000, chance: 15 },
-      { name: 'Karambit Black Pearl', rarity: 'divine', value: 90000, chance: 4 },
-      { name: 'Souvenir AWP Dragon Lore FN', rarity: 'divine', value: 250000, chance: 1 },
+      { name: '★ Sport Gloves | Pandora\'s Box', rarity: 'epic', value: 8000, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DAQ1h3LAVbv6mxFABs3OXNYgJR_Nm1nYGHnufj' },
+      { name: '★ Karambit | Doppler Ruby', rarity: 'legendary', value: 18000, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: '★ M9 Bayonet | Doppler Sapphire', rarity: 'mythic', value: 40000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr4YzxO_uO1gb-Gw_alDK' },
+      { name: '★ Karambit | Doppler Black Pearl', rarity: 'divine', value: 90000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: 'AWP | Dragon Lore (Souvenir FN)', rarity: 'divine', value: 250000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6_Yg' },
     ],
   },
   {
@@ -103,11 +103,11 @@ const cases = [
     color: 'bg-pink-600',
     image: '✨',
     items: [
-      { name: 'Driver Gloves Crimson Weave', rarity: 'legendary', value: 25000, chance: 45 },
-      { name: 'Karambit Emerald', rarity: 'mythic', value: 60000, chance: 35 },
-      { name: 'IBP Holo Sticker', rarity: 'divine', value: 150000, chance: 15 },
-      { name: 'Karambit Case Hardened 661', rarity: 'divine', value: 350000, chance: 4 },
-      { name: 'Souvenir Pink DDPAT', rarity: 'divine', value: 1000000, chance: 1 },
+      { name: '★ Driver Gloves | Crimson Weave', rarity: 'legendary', value: 25000, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DAQ1JmMR1osbaqPQJz7ODYfi9W9eO7lZKMqP' },
+      { name: '★ Karambit | Gamma Doppler Emerald', rarity: 'mythic', value: 60000, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: 'Sticker | iBUYPOWER (Holo) | Katowice 2014', rarity: 'divine', value: 150000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DAR1JbMQNu5Mv' },
+      { name: '★ Karambit | Case Hardened 661', rarity: 'divine', value: 350000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: 'AK-47 | Case Hardened (Souvenir Pink DDPAT)', rarity: 'divine', value: 1000000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09Kvg' },
     ],
   },
 ]
@@ -431,7 +431,16 @@ export default function CasesPage() {
                         className={`flex-shrink-0 w-32 h-32 mx-2 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} p-0.5 ${rarityGlow[item.rarity]}`}
                       >
                         <div className="w-full h-full bg-game-card rounded-lg flex flex-col items-center justify-center p-2">
-                          <Star className="w-12 h-12 mb-2" />
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-20 h-16 object-contain mb-1"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                            }}
+                          />
+                          <Star className="w-12 h-12 mb-1 hidden" />
                           <p className="text-xs text-center font-bold truncate w-full">{item.name}</p>
                           <p className="text-xs text-gray-400 capitalize">{item.rarity}</p>
                         </div>
@@ -464,7 +473,18 @@ export default function CasesPage() {
                       className={`p-0.5 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} ${rarityGlow[item.rarity]} animate-pulse-slow`}
                     >
                       <div className="bg-game-card rounded-lg p-4 h-full">
-                        <Star className="w-12 h-12 mx-auto mb-2" />
+                        <div className="w-full h-20 flex items-center justify-center mb-2">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="max-w-full max-h-full object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                              e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden')
+                            }}
+                          />
+                          <Star className="w-12 h-12 fallback-icon hidden" />
+                        </div>
                         <p className={`font-bold text-center mb-1 text-sm bg-gradient-to-r ${rarityColors[item.rarity]} bg-clip-text text-transparent`}>
                           {item.name}
                         </p>
@@ -532,7 +552,18 @@ export default function CasesPage() {
                   className={`p-0.5 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} ${rarityGlow[item.rarity]} hover:scale-105 transition-transform`}
                 >
                   <div className="bg-game-card rounded-lg p-4 h-full">
-                    <Star className="w-12 h-12 mx-auto mb-2" />
+                    <div className="w-full h-20 flex items-center justify-center mb-2">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="max-w-full max-h-full object-contain"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                          e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden')
+                        }}
+                      />
+                      <Star className="w-12 h-12 fallback-icon hidden" />
+                    </div>
                     <p className={`font-bold text-center mb-1 bg-gradient-to-r ${rarityColors[item.rarity]} bg-clip-text text-transparent`}>
                       {item.name}
                     </p>
