@@ -117,10 +117,10 @@ export default function CasesPage() {
 
       if (error) throw error
 
-      await supabase.from('game_history').insert([
+      await supabase.from('games').insert([
         {
-          user_id: user.id,
-          game_type: 'cases',
+          player_id: user.id,
+          type: 'cases',
           bet_amount: selectedCase.price,
           result: profit > 0 ? 'win' : 'loss',
           payout: item.value,

@@ -45,9 +45,9 @@ export default function ProfilePage() {
   const loadGameHistory = async () => {
     try {
       const { data } = await supabase
-        .from('game_history')
+        .from('games')
         .select('*')
-        .eq('user_id', params.id)
+        .eq('player_id', params.id)
         .order('created_at', { ascending: false })
         .limit(20)
 

@@ -46,7 +46,14 @@ export default function SignupPage() {
               coins: 10000, // Starting bonus
               xp: 0,
               level: 1,
+              games_played: 0,
+              games_won: 0,
+              cases_opened: 0,
+              upgrades_success: 0,
+              win_streak: 0,
+              daily_streak: 0,
               is_admin: false,
+              is_banned: false,
             },
           ])
 

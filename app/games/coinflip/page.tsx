@@ -62,10 +62,10 @@ export default function CoinflipPage() {
       if (error) throw error
 
       // Save game history
-      await supabase.from('game_history').insert([
+      await supabase.from('games').insert([
         {
-          user_id: user.id,
-          game_type: 'coinflip',
+          player_id: user.id,
+          type: 'coinflip',
           bet_amount: betAmount,
           result: didWin ? 'win' : 'loss',
           payout: didWin ? betAmount * 2 : 0,

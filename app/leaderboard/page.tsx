@@ -36,15 +36,15 @@ export default function LeaderboardPage() {
           query = query.order('level', { ascending: false }).order('xp', { ascending: false })
           break
         case 'wins':
-          // For wins, we need to count from game_history
+          // For wins, we need to count from games
           const { data: gameData } = await supabase
-            .from('game_history')
-            .select('user_id, result')
+            .from('games')
+            .select('player_id, result')
 
           if (gameData) {
             const winCounts = gameData.reduce((acc: any, game) => {
               if (game.result === 'win') {
-                acc[game.user_id] = (acc[game.user_id] || 0) + 1
+                acc[game.player_id] = (acc[game.player_id] || 0) + 1
               }
               return acc
             }, {})

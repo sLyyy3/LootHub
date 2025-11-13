@@ -32,16 +32,19 @@ export default function DashboardPage() {
     if (!user) return
 
     const { data } = await supabase
-      .from('users')
-      .select('last_daily_claim')
-      .eq('id', user.id)
+      .from('daily_claims')
+      .select('*')
+      .eq('user_id', user.id)
       .single()
 
     if (data) {
-      const lastClaim = data.last_daily_claim ? new Date(data.last_daily_claim) : null
+      const lastClaim = new Date(data.last_claimed_at)
       const now = new Date()
-      const canClaimNow = !lastClaim || (now.getTime() - lastClaim.getTime()) > 24 * 60 * 60 * 1000
-      setCanClaim(canClaimNow)
+      const hoursSinceLastClaim = (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60)
+      setCanClaim(hoursSinceLastClaim >= 24)
+    } else {
+      // No claims yet, can claim
+      setCanClaim(true)
     }
   }
 
@@ -50,18 +53,71 @@ export default function DashboardPage() {
     setIsClaiming(true)
 
     try {
-      const reward = 1000
-      const { error } = await supabase
+      // Check if user has claim record
+      const { data: existingClaim } = await supabase
+        .from('daily_claims')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      const now = new Date()
+      let newStreak = 1
+
+      if (existingClaim) {
+        const lastClaim = new Date(existingClaim.last_claimed_at)
+        const hoursSinceLastClaim = (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60)
+
+        // If claimed within 48 hours, continue streak
+        if (hoursSinceLastClaim < 48) {
+          newStreak = existingClaim.streak + 1
+        }
+
+        // Update existing claim
+        await supabase
+          .from('daily_claims')
+          .update({
+            last_claimed_at: now.toISOString(),
+            streak: newStreak,
+            total_claims: existingClaim.total_claims + 1,
+          })
+          .eq('user_id', user.id)
+      } else {
+        // Create first claim
+        await supabase
+          .from('daily_claims')
+          .insert({
+            user_id: user.id,
+            last_claimed_at: now.toISOString(),
+            streak: 1,
+            total_claims: 1,
+          })
+      }
+
+      // Calculate reward with streak bonus
+      const baseReward = 1000
+      const streakBonus = Math.min(newStreak * 100, 1000) // Max 1000 bonus
+      const totalReward = baseReward + streakBonus
+
+      // Update user coins and streak
+      await supabase
         .from('users')
         .update({
-          coins: user.coins + reward,
-          last_daily_claim: new Date().toISOString(),
+          coins: user.coins + totalReward,
+          daily_streak: newStreak,
         })
         .eq('id', user.id)
 
-      if (error) throw error
+      // Record transaction
+      await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          type: 'daily_bonus',
+          amount: totalReward,
+          description: `Daily reward claimed (Streak: ${newStreak})`,
+        })
 
-      toast.success(`Claimed ${formatNumber(reward)} coins!`)
+      toast.success(`Claimed ${formatNumber(totalReward)} coins! Streak: ${newStreak} day${newStreak > 1 ? 's' : ''}!`)
       setCanClaim(false)
       await refreshUser()
     } catch (error) {

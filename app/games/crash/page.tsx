@@ -86,10 +86,10 @@ export default function CrashPage() {
 
       if (error) throw error
 
-      await supabase.from('game_history').insert([
+      await supabase.from('games').insert([
         {
-          user_id: user.id,
-          game_type: 'crash',
+          player_id: user.id,
+          type: 'crash',
           bet_amount: betAmount,
           result: 'win',
           payout: winnings,
@@ -120,10 +120,10 @@ export default function CrashPage() {
 
       if (error) throw error
 
-      await supabase.from('game_history').insert([
+      await supabase.from('games').insert([
         {
-          user_id: user.id,
-          game_type: 'crash',
+          player_id: user.id,
+          type: 'crash',
           bet_amount: betAmount,
           result: 'loss',
           payout: 0,
