@@ -1,0 +1,50 @@
+[00:00:01.190] Server  LOG      ✓ Ready in 804ms
+[00:00:03.111] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:03.222] Browser ERROR   uncaughtError: Error: supabaseKey is required.
+[00:00:08.177] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:12.329] Browser ERROR   uncaughtError: Error: supabaseKey is required.
+[00:01:27.233] Server  LOG      ✓ Compiled in 48ms
+[00:01:27.917] Browser ERROR   ./lib/supabase/client.ts:3:38
+Parsing ecmascript source code failed
+  1 | import { createClient } from '@supabase/supabase-js'
+  2 |
+> 3 | const supabaseUrl = process.env.https://ckppopxhbijnxqcjqyvi.supabase.co
+    |                                      ^
+  4 | const supabaseAnonKey = process.env.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcHBvcHhoYmlqbnhxY2pxeXZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNTE1MTEsImV4cCI6MjA3ODYyNzUxMX0.q5ytDoql_uWwaIjoVpHt2MzRFbYzushGtC5M7w6eNzM
+  5 | const supabaseServiceKey = process.env.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcHBvcHhoYmlqbnhxY2pxeXZpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzA1MTUxMSwiZXhwIjoyMDc4NjI3NTExfQ.rmZnwomZUf-nYZB37wr26mOtszMdfE5pOw9eTdihi10
+  6 |
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./lib/supabase/client.ts [Client Component Browser]
+    ./app/(auth)/signup/page.tsx [Client Component Browser]
+    ./app/(auth)/signup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lib/supabase/client.ts [Client Component SSR]
+    ./app/(auth)/signup/page.tsx [Client Component SSR]
+    ./app/(auth)/signup/page.tsx [Server Component]
+[00:01:52.080] Browser ERROR   ./lib/supabase/client.ts:3:39
+Parsing ecmascript source code failed
+  1 | import { createClient } from '@supabase/supabase-js'
+  2 |
+> 3 | const supabaseUrl = process.env. https://ckppopxhbijnxqcjqyvi.supabase.co
+    |                                       ^
+  4 | const supabaseAnonKey = process.env. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcHBvcHhoYmlqbnhxY2pxeXZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNTE1MTEsImV4cCI6MjA3ODYyNzUxMX0.q5ytDoql_uWwaIjoVpHt2MzRFbYzushGtC5M7w6eNzM
+  5 | const supabaseServiceKey = process.env. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcHBvcHhoYmlqbnhxY2pxeXZpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzA1MTUxMSwiZXhwIjoyMDc4NjI3NTExfQ.rmZnwomZUf-nYZB37wr26mOtszMdfE5pOw9eTdihi10
+  6 |
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./lib/supabase/client.ts [Client Component Browser]
+    ./app/(auth)/signup/page.tsx [Client Component Browser]
+    ./app/(auth)/signup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./lib/supabase/client.ts [Client Component SSR]
+    ./app/(auth)/signup/page.tsx [Client Component SSR]
+    ./app/(auth)/signup/page.tsx [Server Component]
