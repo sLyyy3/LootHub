@@ -7,7 +7,7 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Gamepad2, Trophy, Package, TrendingUp, Gift, Swords } from 'lucide-react'
+import { Gamepad2, Trophy, Package, TrendingUp, Gift, Swords, Bomb, Binary, ArrowUp, Sparkles, CircleDot } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
@@ -144,10 +144,10 @@ export default function DashboardPage() {
       color: 'gold',
     },
     {
-      title: 'Crash',
-      description: 'Cash out before it crashes!',
-      icon: TrendingUp,
-      href: '/games/crash',
+      title: 'Roulette',
+      description: 'Bet on numbers, colors, or ranges!',
+      icon: CircleDot,
+      href: '/games/roulette',
       color: 'red-win',
     },
     {
@@ -158,11 +158,39 @@ export default function DashboardPage() {
       color: 'purple-epic',
     },
     {
-      title: 'Case Battles',
-      description: 'Compete against players for the highest value!',
+      title: 'Case Battle',
+      description: 'Battle bots for the highest value!',
       icon: Swords,
-      href: '/games/case-battles',
+      href: '/games/case-battle',
       color: 'gold',
+    },
+    {
+      title: 'Mines',
+      description: 'Reveal tiles, avoid mines, win big!',
+      icon: Bomb,
+      href: '/games/mines',
+      color: 'blue-rare',
+    },
+    {
+      title: 'Tower',
+      description: 'Climb the tower, cash out anytime!',
+      icon: Binary,
+      href: '/games/tower',
+      color: 'green-win',
+    },
+    {
+      title: 'Upgrader',
+      description: 'Upgrade your items for higher value!',
+      icon: ArrowUp,
+      href: '/games/upgrader',
+      color: 'purple-epic',
+    },
+    {
+      title: 'Crash',
+      description: 'Cash out before it crashes!',
+      icon: TrendingUp,
+      href: '/games/crash',
+      color: 'orange-500',
     },
   ]
 
@@ -270,7 +298,19 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Links */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link href="/inventory">
+            <Card className="hover:border-gold transition-colors cursor-pointer">
+              <CardContent className="p-6 flex items-center gap-4">
+                <Package className="w-10 h-10 text-purple-epic" />
+                <div>
+                  <h3 className="font-bold text-lg">Inventory</h3>
+                  <p className="text-gray-400 text-sm">View & sell your items</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
           <Link href="/leaderboard">
             <Card className="hover:border-gold transition-colors cursor-pointer">
               <CardContent className="p-6 flex items-center gap-4">
