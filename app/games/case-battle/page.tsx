@@ -6,7 +6,7 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Users, Trophy, Plus, Bot, Play, Star } from 'lucide-react'
+import { Users, Trophy, Plus, Bot, Play, Star, Sword, Swords, Target, Crosshair, Zap } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
@@ -20,56 +20,85 @@ interface Player {
   items: any[]
 }
 
+const weaponEmojis: Record<string, string> = {
+  'P250': '🔫',
+  'Glock-18': '🔫',
+  'USP-S': '🔫',
+  'M4A4': '⚔️',
+  'AWP': '🎯',
+  'Butterfly Knife': '🗡️',
+  'Karambit': '🗡️',
+  'Bayonet': '🗡️',
+  'M9 Bayonet': '🗡️',
+}
+
+const getWeaponIcon = (name: string) => {
+  for (const [weapon, icon] of Object.entries(weaponEmojis)) {
+    if (name.includes(weapon)) return icon
+  }
+  return '⚔️'
+}
+
 const cases = [
   {
     id: 'beginner',
     name: 'Beginner Case',
     price: 50,
-    image: '📦',
+    icon: '📦',
     items: [
-      { name: 'P250 | Sand Dune', rarity: 'common', value: 30, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopujwezvEYw' },
-      { name: 'Glock-18 | Fade', rarity: 'uncommon', value: 80, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3djFN79eJnJm0k' },
-      { name: 'USP-S | Guardian', rarity: 'rare', value: 150, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m1FBRp3_bGcjhQ09Sv' },
-      { name: 'M4A4 | Asiimov', rarity: 'epic', value: 300, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alDL_Dl' },
-      { name: 'AWP | Dragon Lore', rarity: 'legendary', value: 800, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6-fkGRD6dNOh' },
+      { name: 'P250 | Sand Dune', rarity: 'common', value: 30, chance: 45 },
+      { name: 'Glock-18 | Fade', rarity: 'uncommon', value: 80, chance: 35 },
+      { name: 'USP-S | Guardian', rarity: 'rare', value: 150, chance: 15 },
+      { name: 'M4A4 | Asiimov', rarity: 'epic', value: 300, chance: 4 },
+      { name: 'AWP | Dragon Lore', rarity: 'legendary', value: 800, chance: 1 },
     ],
   },
   {
     id: 'premium',
     name: 'Premium Case',
     price: 500,
-    image: '💎',
+    icon: '💎',
     items: [
-      { name: '★ Butterfly Knife | Vanilla', rarity: 'uncommon', value: 400, chance: 40, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqO' },
-      { name: '★ Karambit | Fade', rarity: 'rare', value: 900, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: 'M4A4 | Howl', rarity: 'epic', value: 2000, chance: 20, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09-5lpKKqPv9N' },
-      { name: 'AWP | Medusa', rarity: 'legendary', value: 4500, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FABz7PLfYQJS5NO0m5O0' },
-      { name: 'AWP | Dragon Lore (Souvenir)', rarity: 'mythic', value: 12000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6_ummpD78A_3L6YoY2h0VHgqkc' },
+      { name: '★ Butterfly Knife | Vanilla', rarity: 'uncommon', value: 400, chance: 40 },
+      { name: '★ Karambit | Fade', rarity: 'rare', value: 900, chance: 35 },
+      { name: 'M4A4 | Howl', rarity: 'epic', value: 2000, chance: 20 },
+      { name: 'AWP | Medusa', rarity: 'legendary', value: 4500, chance: 4 },
+      { name: 'AWP | Dragon Lore (Souvenir)', rarity: 'mythic', value: 12000, chance: 1 },
     ],
   },
   {
     id: 'elite',
     name: 'Elite Case',
     price: 1000,
-    image: '⚡',
+    icon: '⚡',
     items: [
-      { name: '★ Bayonet | Doppler', rarity: 'rare', value: 1200, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotLu8JAllx8zJfAFJ6dO7kZSEk' },
-      { name: '★ Karambit | Tiger Tooth', rarity: 'epic', value: 2500, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: '★ M9 Bayonet | Crimson Web', rarity: 'legendary', value: 6000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr3czxb49KzgL-KkP' },
-      { name: '★ Butterfly Knife | Doppler Sapphire', rarity: 'mythic', value: 18000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqP76DLfY' },
-      { name: 'AWP | Dragon Lore (Factory New)', rarity: 'divine', value: 60000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6-fw2pXu8B' },
+      { name: '★ Bayonet | Doppler', rarity: 'rare', value: 1200, chance: 45 },
+      { name: '★ Karambit | Tiger Tooth', rarity: 'epic', value: 2500, chance: 35 },
+      { name: '★ M9 Bayonet | Crimson Web', rarity: 'legendary', value: 6000, chance: 15 },
+      { name: '★ Butterfly Knife | Doppler Sapphire', rarity: 'mythic', value: 18000, chance: 4 },
+      { name: 'AWP | Dragon Lore (Factory New)', rarity: 'divine', value: 60000, chance: 1 },
     ],
   },
 ]
 
 const rarityColors: Record<string, string> = {
-  common: 'from-gray-500 to-gray-600',
-  uncommon: 'from-green-500 to-green-600',
-  rare: 'from-blue-500 to-blue-600',
-  epic: 'from-purple-500 to-purple-600',
-  legendary: 'from-yellow-500 to-yellow-600',
-  mythic: 'from-red-500 to-red-600',
+  common: 'from-gray-500 to-gray-700',
+  uncommon: 'from-green-500 to-green-700',
+  rare: 'from-blue-500 to-blue-700',
+  epic: 'from-purple-500 to-purple-700',
+  legendary: 'from-yellow-500 to-yellow-700',
+  mythic: 'from-red-500 to-red-700',
   divine: 'from-pink-500 via-purple-500 to-blue-500',
+}
+
+const rarityGlow: Record<string, string> = {
+  common: 'shadow-gray-500/50',
+  uncommon: 'shadow-green-500/50',
+  rare: 'shadow-blue-500/50',
+  epic: 'shadow-purple-500/50',
+  legendary: 'shadow-yellow-500/50',
+  mythic: 'shadow-red-500/50',
+  divine: 'shadow-pink-500/50',
 }
 
 const botNames = [
@@ -88,6 +117,7 @@ export default function CaseBattlePage() {
   const [currentRound, setCurrentRound] = useState(0)
   const [winner, setWinner] = useState<Player | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [revealedItems, setRevealedItems] = useState<any[]>([])
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -105,6 +135,7 @@ export default function CaseBattlePage() {
       return
     }
     setSelectedCases([...selectedCases, caseItem])
+    toast.success(`Added ${caseItem.name}!`)
   }
 
   const removeCase = (index: number) => {
@@ -139,7 +170,9 @@ export default function CaseBattlePage() {
     }
 
     setPlayers(newPlayers)
-    toast.success(`Battle created! ${totalPlayers - 1} bot${totalPlayers > 2 ? 's' : ''} joined`)
+    toast.success(`Battle created! ${totalPlayers - 1} bot${totalPlayers > 2 ? 's' : ''} joined`, {
+      icon: '🤖',
+    })
   }
 
   const determineWonItem = (caseItem: any) => {
@@ -149,10 +182,10 @@ export default function CaseBattlePage() {
     for (const item of caseItem.items) {
       cumulativeChance += item.chance
       if (random <= cumulativeChance) {
-        return item
+        return { ...item }
       }
     }
-    return caseItem.items[0]
+    return { ...caseItem.items[0] }
   }
 
   const startBattle = async () => {
@@ -174,10 +207,19 @@ export default function CaseBattlePage() {
 
     // Deduct cost
     updateCoins(user.coins - totalCost)
+    try {
+      await supabase
+        .from('users')
+        .update({ coins: user.coins - totalCost })
+        .eq('id', user.id)
+    } catch (error) {
+      console.error('Error updating coins:', error)
+    }
 
     setBattleActive(true)
     setWinner(null)
     setCurrentRound(0)
+    setRevealedItems([])
 
     // Reset player totals
     const resetPlayers = players.map(p => ({ ...p, totalValue: 0, items: [] }))
@@ -192,10 +234,12 @@ export default function CaseBattlePage() {
 
       // Each player opens the case
       const roundItems: any[] = []
-      for (let i = 0; i < players.length; i++) {
+      for (let i = 0; i < resetPlayers.length; i++) {
         const item = determineWonItem(caseToOpen)
         roundItems.push(item)
       }
+
+      setRevealedItems(roundItems)
 
       // Animate opening
       await new Promise(resolve => setTimeout(resolve, 3000))
@@ -211,62 +255,76 @@ export default function CaseBattlePage() {
       await new Promise(resolve => setTimeout(resolve, 1000))
     }
 
-    // Determine winner
-    const finalPlayers = players.map((player, idx) => {
-      const totalValue = selectedCases.reduce((sum, _, caseIdx) => {
-        const item = determineWonItem(selectedCases[caseIdx])
-        return sum + item.value
-      }, 0)
-      return { ...player, totalValue }
-    })
+    // Determine winner AFTER all updates are complete
+    await new Promise(resolve => setTimeout(resolve, 500))
 
     setPlayers(prevPlayers => {
-      const updatedPlayers = prevPlayers.map(p => ({ ...p }))
-      const winningPlayer = updatedPlayers.reduce((max, p) => p.totalValue > max.totalValue ? p : max)
-      setWinner(winningPlayer)
+      const winningPlayer = prevPlayers.reduce((max, p) => p.totalValue > max.totalValue ? p : max)
 
-      // Save to database
-      const userPlayer = updatedPlayers.find(p => p.isUser)
-      if (userPlayer) {
-        const isWin = userPlayer.id === winningPlayer.id
-        const payout = isWin ? userPlayer.totalValue : 0
-        const totalCost = selectedCases.reduce((sum, c) => sum + c.price, 0)
+      // Set winner OUTSIDE of setState
+      setTimeout(() => {
+        setWinner(winningPlayer)
+        handleBattleResult(prevPlayers, winningPlayer, totalCost)
+      }, 0)
 
-        supabase.from('games').insert({
-          player_id: user!.id,
-          game_type: 'case_battle',
-          bet_amount: totalCost,
-          result: isWin ? 'win' : 'loss',
-          payout,
-        })
-
-        if (isWin) {
-          // Add items to inventory
-          const inventoryItems = userPlayer.items.map((item: any) => ({
-            owner_id: user!.id,
-            name: item.name,
-            rarity: item.rarity,
-            value: item.value,
-          }))
-          supabase.from('items').insert(inventoryItems)
-
-          // Update coins
-          const newBalance = user!.coins + payout
-          supabase.from('users').update({ coins: newBalance }).eq('id', user!.id)
-          updateCoins(newBalance)
-
-          toast.success(`🏆 You won the battle! +${formatNumber(payout)} coins`)
-        } else {
-          toast.error(`You lost the battle. Winner: ${winningPlayer.name}`)
-        }
-
-        refreshUser()
-      }
-
-      return updatedPlayers
+      return prevPlayers
     })
 
     setBattleActive(false)
+  }
+
+  const handleBattleResult = async (allPlayers: Player[], winningPlayer: Player, totalCost: number) => {
+    if (!user) return
+
+    const userPlayer = allPlayers.find(p => p.isUser)
+    if (!userPlayer) return
+
+    const isWin = userPlayer.id === winningPlayer.id
+    const payout = isWin ? userPlayer.totalValue : 0
+
+    try {
+      // Save game to database
+      await supabase.from('games').insert({
+        player_id: user.id,
+        type: 'case_battle',
+        bet_amount: totalCost,
+        result: isWin ? 'win' : 'loss',
+        payout,
+      })
+
+      if (isWin) {
+        // Add items to inventory
+        const inventoryItems = userPlayer.items.map((item: any) => ({
+          user_id: user.id,
+          item_name: item.name,
+          item_rarity: item.rarity,
+          item_value: item.value,
+        }))
+
+        if (inventoryItems.length > 0) {
+          await supabase.from('inventory').insert(inventoryItems)
+        }
+
+        // Update coins
+        const newBalance = user.coins + payout
+        await supabase.from('users').update({ coins: newBalance }).eq('id', user.id)
+        updateCoins(newBalance)
+
+        toast.success(`🏆 You won the battle! +${formatNumber(payout)} coins`, {
+          duration: 5000,
+          icon: '🎉',
+        })
+      } else {
+        toast.error(`You lost the battle. Winner: ${winningPlayer.name}`, {
+          duration: 4000,
+        })
+      }
+
+      await refreshUser()
+    } catch (error) {
+      console.error('Error handling battle result:', error)
+      toast.error('Error saving battle result')
+    }
   }
 
   if (isLoading || !user) {
@@ -286,7 +344,8 @@ export default function CaseBattlePage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
+          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+            <Swords className="w-10 h-10 text-red-500" />
             <span className="text-gradient-gold">Case Battle</span>
           </h1>
           <p className="text-gray-400">Battle against bots! Highest total value wins all items.</p>
@@ -294,203 +353,284 @@ export default function CaseBattlePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Battle Setup */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             {/* Battle Mode Selection */}
-            <Card className="mb-6">
+            <Card>
               <CardHeader>
-                <CardTitle>Select Battle Mode</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Battle Mode
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-4">
-                  {(['1v1', '1v1v1', '2v2'] as const).map((mode) => (
-                    <button
-                      key={mode}
-                      onClick={() => {
-                        setBattleMode(mode)
-                        setPlayers([])
-                      }}
-                      disabled={battleActive}
-                      className={`
-                        p-4 rounded-lg border-2 transition-all
-                        ${battleMode === mode ? 'border-gold bg-gold/10' : 'border-gray-700 bg-game-bg'}
-                        ${battleActive ? 'cursor-not-allowed opacity-50' : 'hover:border-gold/50 cursor-pointer'}
-                      `}
-                    >
-                      <Users className="w-8 h-8 mx-auto mb-2" />
-                      <p className="font-bold">{mode.toUpperCase()}</p>
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Selected Cases */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Selected Cases ({selectedCases.length}/5)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {selectedCases.length === 0 ? (
-                  <p className="text-center text-gray-400 py-8">No cases selected</p>
-                ) : (
-                  <div className="grid grid-cols-5 gap-4">
-                    {selectedCases.map((caseItem, idx) => (
-                      <div key={idx} className="relative">
-                        <div className="p-4 rounded-lg bg-game-card border border-gray-700 text-center">
-                          <div className="text-4xl mb-2">{caseItem.image}</div>
-                          <p className="text-xs font-bold truncate">{caseItem.name}</p>
-                          <p className="text-gold text-xs">{formatNumber(caseItem.price)}</p>
-                        </div>
-                        {!battleActive && (
-                          <button
-                            onClick={() => removeCase(idx)}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-win rounded-full flex items-center justify-center text-xs"
-                          >
-                            ×
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="mt-4 flex justify-between items-center">
-                  <span className="text-sm text-gray-400">Total Cost:</span>
-                  <span className="text-xl font-bold text-gold">{formatNumber(totalCost)}</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Players */}
-            {players.length > 0 && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle>Battle Participants</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className={`grid ${battleMode === '2v2' ? 'grid-cols-4' : battleMode === '1v1v1' ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
-                    {players.map((player) => (
-                      <div
-                        key={player.id}
-                        className={`
-                          p-4 rounded-lg border-2
-                          ${winner?.id === player.id ? 'border-gold bg-gold/10' : 'border-gray-700 bg-game-bg'}
-                        `}
-                      >
-                        <div className="flex items-center gap-2 mb-3">
-                          {player.isBot ? <Bot className="w-5 h-5" /> : <Trophy className="w-5 h-5 text-gold" />}
-                          <p className="font-bold truncate">{player.name}</p>
-                        </div>
-                        <div className="space-y-2">
-                          <div>
-                            <p className="text-xs text-gray-400">Total Value</p>
-                            <p className="text-lg font-bold text-gold">{formatNumber(player.totalValue)}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-400">Items: {player.items.length}</p>
-                            {player.items.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {player.items.map((item: any, idx: number) => (
-                                  <div
-                                    key={idx}
-                                    className="w-12 h-12 rounded bg-gradient-to-br from-gray-700 to-gray-800 p-0.5"
-                                  >
-                                    <img
-                                      src={item.image}
-                                      alt={item.name}
-                                      className="w-full h-full object-contain"
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {winner && (
-                    <div className="mt-6 p-4 bg-gradient-to-r from-gold/20 to-gold/5 border-2 border-gold rounded-lg text-center">
-                      <Trophy className="w-12 h-12 mx-auto mb-2 text-gold" />
-                      <p className="text-2xl font-bold mb-2">🏆 {winner.name} Wins!</p>
-                      <p className="text-gold text-xl font-bold">Total Value: {formatNumber(winner.totalValue)}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Battle Controls */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {players.length === 0 ? (
-                    <Button
-                      variant="secondary"
-                      className="w-full"
-                      onClick={fillWithBots}
-                      disabled={battleActive}
-                    >
-                      <Bot className="w-5 h-5 mr-2" />
-                      Fill Battle with Bots
-                    </Button>
-                  ) : null}
-
                   <Button
-                    variant="primary"
-                    className="w-full text-lg py-6"
-                    onClick={startBattle}
-                    disabled={battleActive || selectedCases.length === 0 || players.length === 0 || !canAfford}
+                    variant={battleMode === '1v1' ? 'primary' : 'secondary'}
+                    onClick={() => setBattleMode('1v1')}
+                    disabled={battleActive}
+                    className="flex flex-col items-center p-6"
                   >
-                    <Play className="w-6 h-6 mr-2" />
-                    {battleActive ? `Round ${currentRound}/${selectedCases.length}` : `Start Battle (${formatNumber(totalCost)} coins)`}
+                    <Users className="w-8 h-8 mb-2" />
+                    <span className="text-lg font-bold">1v1</span>
                   </Button>
-
-                  {!canAfford && totalCost > 0 && (
-                    <p className="text-center text-red-500 font-bold">
-                      Insufficient coins! Need {formatNumber(totalCost - user.coins)} more
-                    </p>
-                  )}
+                  <Button
+                    variant={battleMode === '1v1v1' ? 'primary' : 'secondary'}
+                    onClick={() => setBattleMode('1v1v1')}
+                    disabled={battleActive}
+                    className="flex flex-col items-center p-6"
+                  >
+                    <Users className="w-8 h-8 mb-2" />
+                    <span className="text-lg font-bold">1v1v1</span>
+                  </Button>
+                  <Button
+                    variant={battleMode === '2v2' ? 'primary' : 'secondary'}
+                    onClick={() => setBattleMode('2v2')}
+                    disabled={battleActive}
+                    className="flex flex-col items-center p-6"
+                  >
+                    <Users className="w-8 h-8 mb-2" />
+                    <span className="text-lg font-bold">2v2</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Case Selection */}
-          <div>
+            {/* Case Selection */}
             <Card>
               <CardHeader>
-                <CardTitle>Available Cases</CardTitle>
+                <CardTitle>Select Cases (Max 5)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {cases.map((caseItem) => (
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  {cases.map(caseItem => (
                     <button
                       key={caseItem.id}
                       onClick={() => addCase(caseItem)}
                       disabled={battleActive || selectedCases.length >= 5}
-                      className={`
-                        w-full p-4 rounded-lg border-2 transition-all text-left
-                        ${battleActive ? 'cursor-not-allowed opacity-50' : 'hover:border-gold hover:scale-105 cursor-pointer'}
-                        border-gray-700 bg-game-bg
-                      `}
+                      className="p-4 bg-game-card rounded-lg border-2 border-game-border hover:border-gold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="text-4xl">{caseItem.image}</div>
-                        <div className="flex-1">
-                          <p className="font-bold">{caseItem.name}</p>
-                          <p className="text-gold font-bold">{formatNumber(caseItem.price)}</p>
-                        </div>
-                        <Plus className="w-6 h-6" />
-                      </div>
+                      <div className="text-5xl mb-2">{caseItem.icon}</div>
+                      <h3 className="font-bold mb-1">{caseItem.name}</h3>
+                      <p className="text-gold font-bold">{formatNumber(caseItem.price)}</p>
                     </button>
                   ))}
                 </div>
+
+                {/* Selected Cases */}
+                {selectedCases.length > 0 && (
+                  <div>
+                    <h4 className="font-bold mb-3">Selected Cases:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCases.map((caseItem, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 px-4 py-2 bg-game-bg rounded-lg border border-gold"
+                        >
+                          <span className="text-2xl">{caseItem.icon}</span>
+                          <span className="font-bold">{caseItem.name}</span>
+                          <button
+                            onClick={() => removeCase(idx)}
+                            disabled={battleActive}
+                            className="ml-2 text-red-500 hover:text-red-400 disabled:opacity-50"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Battle Arena */}
+            {players.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-gold" />
+                    Battle Arena
+                    {currentRound > 0 && (
+                      <span className="ml-auto text-sm">Round {currentRound}/{selectedCases.length}</span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {players.map((player, idx) => (
+                      <div
+                        key={player.id}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          winner?.id === player.id
+                            ? 'border-gold bg-gold/10 animate-pulse'
+                            : battleActive
+                            ? 'border-blue-500 bg-blue-500/10'
+                            : 'border-game-border bg-game-card'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          {player.isBot ? (
+                            <Bot className="w-5 h-5 text-purple-500" />
+                          ) : (
+                            <Star className="w-5 h-5 text-gold" />
+                          )}
+                          <span className="font-bold truncate">{player.name}</span>
+                        </div>
+
+                        <div className="space-y-2">
+                          {player.items.map((item, itemIdx) => (
+                            <div
+                              key={itemIdx}
+                              className={`p-2 rounded bg-gradient-to-r ${rarityColors[item.rarity]} animate-slideIn`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">{getWeaponIcon(item.name)}</span>
+                                <div className="flex-1">
+                                  <p className="text-xs font-bold truncate">{item.name}</p>
+                                  <p className="text-xs text-white/80">{formatNumber(item.value)}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+
+                          {isAnimating && revealedItems[idx] && (
+                            <div className="p-2 rounded bg-gradient-to-r from-gold/30 to-gold/10 animate-spin-slow">
+                              <div className="text-center text-2xl">✨</div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-gray-700">
+                          <p className="text-sm text-gray-400">Total Value</p>
+                          <p className="text-xl font-bold text-gold">{formatNumber(player.totalValue)}</p>
+                        </div>
+
+                        {winner?.id === player.id && (
+                          <div className="mt-2 text-center">
+                            <span className="text-2xl animate-bounce inline-block">🏆</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Side Panel */}
+          <div className="space-y-6">
+            {/* Battle Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Battle Info</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Mode</p>
+                  <p className="text-lg font-bold">{battleMode}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Players</p>
+                  <p className="text-lg font-bold">{players.length}/{getTotalPlayers()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Cases Selected</p>
+                  <p className="text-lg font-bold">{selectedCases.length}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Total Cost</p>
+                  <p className={`text-2xl font-bold ${canAfford ? 'text-gold' : 'text-red-500'}`}>
+                    {formatNumber(totalCost)}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  onClick={fillWithBots}
+                  disabled={battleActive || players.length > 0}
+                  variant="secondary"
+                  className="w-full"
+                >
+                  <Bot className="w-5 h-5 mr-2" />
+                  Fill with Bots
+                </Button>
+                <Button
+                  onClick={startBattle}
+                  disabled={battleActive || selectedCases.length === 0 || players.length === 0 || !canAfford}
+                  variant="primary"
+                  className="w-full"
+                >
+                  {battleActive ? (
+                    <>
+                      <div className="spinner w-5 h-5 mr-2" />
+                      Battle in Progress...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-5 h-5 mr-2" />
+                      Start Battle
+                    </>
+                  )}
+                </Button>
+                {!canAfford && totalCost > 0 && (
+                  <p className="text-sm text-red-500 text-center">Insufficient coins!</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* How to Play */}
+            <Card>
+              <CardHeader>
+                <CardTitle>How to Play</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ol className="list-decimal list-inside space-y-2 text-sm text-gray-400">
+                  <li>Choose battle mode (1v1, 1v1v1, or 2v2)</li>
+                  <li>Select 1-5 cases to open</li>
+                  <li>Fill remaining slots with bots</li>
+                  <li>Each player opens all cases</li>
+                  <li>Highest total value wins ALL items!</li>
+                </ol>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .animate-slideIn {
+          animation: slideIn 0.5s ease-out;
+        }
+        @keyframes spin-slow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 2s linear infinite;
+        }
+      `}</style>
     </div>
   )
 }

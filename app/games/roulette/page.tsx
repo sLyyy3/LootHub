@@ -6,7 +6,7 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Coins, Flame, History, Target, TrendingUp } from 'lucide-react'
+import { Coins, Flame, History, Target, TrendingUp, CircleDot, Sparkles, Zap } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
@@ -56,6 +56,7 @@ interface Bet {
   value?: number
   amount: number
   payout: number
+  label: string
 }
 
 export default function RoulettePage() {
@@ -65,8 +66,10 @@ export default function RoulettePage() {
   const [bets, setBets] = useState<Bet[]>([])
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<number | null>(null)
+  const [resultColor, setResultColor] = useState<string>('')
   const [history, setHistory] = useState<number[]>([])
-  const [rotation, setRotation] = useState(0)
+  const [wheelRotation, setWheelRotation] = useState(0)
+  const [ballPosition, setBallPosition] = useState(0)
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -81,11 +84,21 @@ export default function RoulettePage() {
       return
     }
 
+    const totalBetAfter = bets.reduce((sum, b) => sum + b.amount, 0) + betAmount
+    if (totalBetAfter > user.coins) {
+      toast.error('Insufficient coins for all bets')
+      return
+    }
+
     setBets([...bets, { ...bet, amount: betAmount }])
+    toast.success(`Bet placed: ${bet.label} - ${formatNumber(betAmount)}`, { duration: 2000 })
   }
 
   const clearBets = () => {
-    if (!isSpinning) setBets([])
+    if (!isSpinning) {
+      setBets([])
+      toast.success('Bets cleared')
+    }
   }
 
   const spin = async () => {
@@ -102,23 +115,31 @@ export default function RoulettePage() {
 
     setIsSpinning(true)
     setResult(null)
+    setResultColor('')
 
     // Generate random result
     const winningNumber = Math.floor(Math.random() * 37)
     const winningSlot = rouletteNumbers.find(n => n.num === winningNumber)!
+    const winningIndex = rouletteNumbers.findIndex(n => n.num === winningNumber)
 
-    // Spin animation
-    const spins = 5 + Math.random() * 3 // 5-8 full rotations
-    const finalRotation = rotation + (360 * spins) + (winningNumber * (360 / 37))
-    setRotation(finalRotation)
+    // Spin animation - rotate wheel and ball
+    const spins = 5 + Math.random() * 2 // 5-7 full rotations
+    const wheelFinalRotation = wheelRotation + (360 * spins)
+    const ballFinalPosition = (360 / rouletteNumbers.length) * winningIndex
+
+    setWheelRotation(wheelFinalRotation)
+    setBallPosition(wheelFinalRotation + 360 * 2 + ballFinalPosition)
 
     // Wait for spin to complete
     setTimeout(async () => {
       setResult(winningNumber)
+      setResultColor(winningSlot.color)
       setHistory([winningNumber, ...history.slice(0, 19)])
 
       // Calculate winnings
       let totalWin = 0
+      let wonBets = 0
+
       bets.forEach(bet => {
         let won = false
 
@@ -147,6 +168,8 @@ export default function RoulettePage() {
           won = true
           totalWin += bet.amount * bet.payout
         }
+
+        if (won) wonBets++
       })
 
       const profit = totalWin - totalBet
@@ -177,12 +200,17 @@ export default function RoulettePage() {
         ])
 
         if (profit > 0) {
-          toast.success(`🎉 Won ${formatNumber(totalWin)}! Profit: +${formatNumber(profit)}`, {
-            duration: 4000,
-            icon: '🎰',
-          })
+          toast.success(
+            `🎉 Won ${formatNumber(totalWin)}! Profit: +${formatNumber(profit)} | ${wonBets}/${bets.length} bets hit!`,
+            {
+              duration: 5000,
+              icon: '🎰',
+            }
+          )
+        } else if (profit === 0) {
+          toast('Break even!', { icon: '🟡' })
         } else {
-          toast.error(`Lost ${formatNumber(totalBet)} coins`)
+          toast.error(`Lost ${formatNumber(totalBet)} coins`, { duration: 3000 })
         }
       } catch (error) {
         toast.error('Failed to play game')
@@ -203,6 +231,7 @@ export default function RoulettePage() {
   }
 
   const totalBet = bets.reduce((sum, bet) => sum + bet.amount, 0)
+  const canAfford = user.coins >= totalBet
   const redCount = history.filter(n => {
     const slot = rouletteNumbers.find(s => s.num === n)
     return slot?.color === 'red'
@@ -211,6 +240,7 @@ export default function RoulettePage() {
     const slot = rouletteNumbers.find(s => s.num === n)
     return slot?.color === 'black'
   }).length
+  const greenCount = history.filter(n => n === 0).length
 
   return (
     <div className="min-h-screen">
@@ -218,127 +248,153 @@ export default function RoulettePage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
+          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+            <CircleDot className="w-10 h-10 text-red-500" />
             <span className="text-gradient-gold">Roulette</span>
           </h1>
           <p className="text-gray-400">Place your bets and spin the wheel!</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Game Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Game Area */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Wheel */}
+            {/* Roulette Wheel */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Roulette Wheel</span>
-                  <span className="text-gold">{formatNumber(user.coins)} coins</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-game-bg via-game-card to-game-bg rounded-lg">
-                  {/* Wheel */}
-                  <div className="relative w-80 h-80 mb-6">
-                    <style jsx>{`
-                      .wheel {
-                        transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-                      }
-                    `}</style>
-
-                    {/* Pointer */}
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
-                      <div className="w-0 h-0 border-l-8 border-r-8 border-t-16 border-l-transparent border-r-transparent border-t-gold drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]" />
-                    </div>
-
-                    {/* Wheel Circle */}
+              <CardContent className="p-8">
+                <div className="relative w-full aspect-square max-w-md mx-auto">
+                  {/* Wheel Container */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border-8 border-gold shadow-2xl overflow-hidden">
+                    {/* Rotating Wheel */}
                     <div
-                      className="wheel w-full h-full rounded-full border-8 border-gold relative overflow-hidden shadow-[0_0_60px_rgba(234,179,8,0.4)]"
+                      className="absolute inset-4 rounded-full transition-transform duration-[5000ms] ease-out"
                       style={{
-                        transform: `rotate(${rotation}deg)`,
-                        background: 'conic-gradient(' +
-                          rouletteNumbers.map((slot, idx) => {
-                            const startAngle = (idx * 360) / 37
-                            const endAngle = ((idx + 1) * 360) / 37
-                            const color = slot.color === 'green' ? '#10b981' : slot.color === 'red' ? '#ef4444' : '#1f2937'
-                            return `${color} ${startAngle}deg ${endAngle}deg`
-                          }).join(', ') + ')',
+                        transform: `rotate(${wheelRotation}deg)`,
+                        background: `conic-gradient(
+                          ${rouletteNumbers
+                            .map((slot, idx) => {
+                              const start = (idx / rouletteNumbers.length) * 360
+                              const end = ((idx + 1) / rouletteNumbers.length) * 360
+                              const color =
+                                slot.color === 'red'
+                                  ? '#ef4444'
+                                  : slot.color === 'green'
+                                  ? '#10b981'
+                                  : '#1f2937'
+                              return `${color} ${start}deg ${end}deg`
+                            })
+                            .join(', ')}
+                        )`,
                       }}
                     >
-                      {rouletteNumbers.map((slot, idx) => (
-                        <div
-                          key={idx}
-                          className="absolute left-1/2 top-1/2 origin-left"
-                          style={{
-                            transform: `rotate(${(idx * 360) / 37}deg) translateX(120px)`,
-                          }}
-                        >
-                          <span className="text-white font-bold text-sm drop-shadow-lg">
-                            {slot.num}
-                          </span>
-                        </div>
-                      ))}
+                      {/* Numbers on wheel */}
+                      {rouletteNumbers.map((slot, idx) => {
+                        const angle = (idx / rouletteNumbers.length) * 360
+                        return (
+                          <div
+                            key={idx}
+                            className="absolute top-1/2 left-1/2 origin-top-left"
+                            style={{
+                              transform: `rotate(${angle}deg) translateX(45%)`,
+                            }}
+                          >
+                            <span className="text-white font-bold text-xs drop-shadow-lg">
+                              {slot.num}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Center Hub */}
+                    <div className="absolute inset-[40%] rounded-full bg-gradient-to-br from-gold via-yellow-600 to-yellow-800 border-4 border-yellow-400 shadow-2xl flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-white animate-pulse" />
+                    </div>
+
+                    {/* Ball */}
+                    <div
+                      className="absolute top-[10%] left-1/2 -ml-2 w-4 h-4 transition-transform duration-[5000ms] ease-out"
+                      style={{
+                        transform: `rotate(${ballPosition}deg) translateX(140px)`,
+                      }}
+                    >
+                      <div className="w-4 h-4 rounded-full bg-white shadow-lg border-2 border-gray-300 animate-pulse" />
                     </div>
                   </div>
 
                   {/* Result Display */}
-                  {result !== null && (
-                    <div className="text-center mb-6">
+                  {result !== null && !isSpinning && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div
-                        className={`inline-block px-8 py-4 rounded-full border-4 ${
-                          rouletteNumbers.find(n => n.num === result)?.color === 'red'
-                            ? 'bg-red-500 border-red-600'
-                            : rouletteNumbers.find(n => n.num === result)?.color === 'green'
-                            ? 'bg-green-500 border-green-600'
-                            : 'bg-gray-800 border-gray-900'
-                        } shadow-[0_0_30px_rgba(234,179,8,0.6)] animate-pulse-slow`}
+                        className={`px-8 py-4 rounded-xl border-4 shadow-2xl animate-bounce ${
+                          resultColor === 'red'
+                            ? 'bg-red-500 border-red-300'
+                            : resultColor === 'green'
+                            ? 'bg-green-500 border-green-300'
+                            : 'bg-gray-800 border-gray-600'
+                        }`}
                       >
-                        <span className="text-6xl font-bold text-white">{result}</span>
+                        <p className="text-6xl font-bold text-white drop-shadow-lg">{result}</p>
                       </div>
-                      <p className="text-xl font-bold mt-2 text-gray-300 capitalize">
-                        {rouletteNumbers.find(n => n.num === result)?.color}
-                        {result !== 0 && ` • ${result % 2 === 0 ? 'Even' : 'Odd'}`}
-                      </p>
                     </div>
                   )}
 
-                  {/* Spin Button */}
+                  {/* Spinning Indicator */}
+                  {isSpinning && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="px-6 py-3 bg-gold/90 rounded-xl border-2 border-yellow-300 shadow-xl">
+                        <p className="text-2xl font-bold text-white animate-pulse">SPINNING...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Spin Button */}
+                <div className="mt-6 text-center">
                   <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full max-w-md text-xl py-6"
                     onClick={spin}
-                    isLoading={isSpinning}
-                    disabled={bets.length === 0 || isSpinning || totalBet > user.coins}
+                    disabled={isSpinning || bets.length === 0 || !canAfford}
+                    variant="primary"
+                    className="px-12 py-4 text-xl"
                   >
-                    {isSpinning ? 'Spinning...' : `Spin (${formatNumber(totalBet)} coins)`}
+                    {isSpinning ? (
+                      <>
+                        <div className="spinner w-6 h-6 mr-2" />
+                        Spinning...
+                      </>
+                    ) : (
+                      <>
+                        <CircleDot className="w-6 h-6 mr-2" />
+                        Spin ({formatNumber(totalBet)} coins)
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Betting Table */}
+            {/* Betting Grid */}
             <Card>
               <CardHeader>
-                <CardTitle>Betting Table</CardTitle>
+                <CardTitle>Place Your Bets</CardTitle>
               </CardHeader>
               <CardContent>
-                {/* Bet Amount Selector */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Bet Amount per Chip</label>
-                  <input
-                    type="number"
-                    value={betAmount}
-                    onChange={(e) => setBetAmount(Number(e.target.value))}
-                    min={10}
-                    max={user.coins}
-                    className="w-full px-4 py-3 bg-game-card border border-game-border rounded-lg focus:outline-none focus:border-gold"
-                    disabled={isSpinning}
-                  />
-                  <div className="grid grid-cols-5 gap-2 mt-2">
-                    {[10, 50, 100, 500, 1000].map((amount) => (
+                {/* Bet Amount */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium mb-2">Bet Amount</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(Math.max(10, parseInt(e.target.value) || 10))}
+                      disabled={isSpinning}
+                      className="flex-1 px-4 py-2 bg-game-card border border-game-border rounded-lg focus:outline-none focus:border-gold"
+                      min="10"
+                      step="10"
+                    />
+                    {[100, 500, 1000, 5000].map((amount) => (
                       <Button
                         key={amount}
-                        variant="ghost"
+                        variant="secondary"
                         size="sm"
                         onClick={() => setBetAmount(amount)}
                         disabled={isSpinning}
@@ -349,145 +405,117 @@ export default function RoulettePage() {
                   </div>
                 </div>
 
-                {/* Outside Bets */}
-                <div className="space-y-3">
-                  <p className="text-sm font-bold text-gray-400">Outside Bets (2:1 payout)</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <Button
-                      variant="secondary"
-                      onClick={() => addBet({ type: 'red', payout: 2 })}
-                      disabled={isSpinning}
-                      className="bg-red-500 hover:bg-red-600"
-                    >
-                      RED
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => addBet({ type: 'black', payout: 2 })}
-                      disabled={isSpinning}
-                      className="bg-gray-800 hover:bg-gray-900"
-                    >
-                      BLACK
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => addBet({ type: 'odd', payout: 2 })}
-                      disabled={isSpinning}
-                    >
-                      ODD
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => addBet({ type: 'even', payout: 2 })}
-                      disabled={isSpinning}
-                    >
-                      EVEN
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => addBet({ type: 'low', payout: 2 })}
-                      disabled={isSpinning}
-                    >
-                      1-18
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => addBet({ type: 'high', payout: 2 })}
-                      disabled={isSpinning}
-                    >
-                      19-36
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => addBet({ type: 'green', payout: 36 })}
-                      disabled={isSpinning}
-                      className="bg-green-500 hover:bg-green-600 col-span-2"
-                    >
-                      GREEN (0) - 36:1
-                    </Button>
-                  </div>
+                {/* Color Bets */}
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <button
+                    onClick={() => addBet({ type: 'red', payout: 2, label: 'Red (2x)' })}
+                    disabled={isSpinning}
+                    className="p-6 bg-red-600 hover:bg-red-500 rounded-lg border-2 border-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+                  >
+                    <div className="text-3xl mb-2">🔴</div>
+                    <p className="font-bold text-white">RED</p>
+                    <p className="text-sm text-white/80">2x</p>
+                  </button>
+                  <button
+                    onClick={() => addBet({ type: 'green', payout: 14, label: 'Green (14x)' })}
+                    disabled={isSpinning}
+                    className="p-6 bg-green-600 hover:bg-green-500 rounded-lg border-2 border-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+                  >
+                    <div className="text-3xl mb-2">🟢</div>
+                    <p className="font-bold text-white">GREEN</p>
+                    <p className="text-sm text-white/80">14x</p>
+                  </button>
+                  <button
+                    onClick={() => addBet({ type: 'black', payout: 2, label: 'Black (2x)' })}
+                    disabled={isSpinning}
+                    className="p-6 bg-gray-800 hover:bg-gray-700 rounded-lg border-2 border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+                  >
+                    <div className="text-3xl mb-2">⚫</div>
+                    <p className="font-bold text-white">BLACK</p>
+                    <p className="text-sm text-white/80">2x</p>
+                  </button>
+                </div>
 
-                  {/* Number Grid */}
-                  <p className="text-sm font-bold text-gray-400 mt-4">Straight Up (36:1 payout)</p>
-                  <div className="grid grid-cols-6 gap-1">
-                    {Array.from({ length: 37 }, (_, i) => i).map((num) => {
-                      const slot = rouletteNumbers.find(n => n.num === num)
-                      return (
-                        <button
-                          key={num}
-                          onClick={() => addBet({ type: 'number', value: num, payout: 36 })}
-                          disabled={isSpinning}
-                          className={`p-3 rounded font-bold text-sm ${
-                            slot?.color === 'red'
-                              ? 'bg-red-500 hover:bg-red-600'
-                              : slot?.color === 'green'
-                              ? 'bg-green-500 hover:bg-green-600'
-                              : 'bg-gray-800 hover:bg-gray-900'
-                          } ${isSpinning ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          {num}
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  {/* Current Bets */}
-                  {bets.length > 0 && (
-                    <div className="mt-4 p-4 bg-game-bg rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-bold">Current Bets</span>
-                        <Button variant="danger" size="sm" onClick={clearBets} disabled={isSpinning}>
-                          Clear All
-                        </Button>
-                      </div>
-                      <div className="space-y-1 text-sm">
-                        {bets.map((bet, idx) => (
-                          <div key={idx} className="flex justify-between">
-                            <span>
-                              {bet.type === 'number' ? `#${bet.value}` : bet.type.toUpperCase()}
-                              {' '}({bet.payout}:1)
-                            </span>
-                            <span className="text-gold">{formatNumber(bet.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="border-t border-game-border mt-2 pt-2 flex justify-between font-bold">
-                        <span>Total:</span>
-                        <span className="text-gold">{formatNumber(totalBet)}</span>
-                      </div>
-                    </div>
-                  )}
+                {/* Range Bets */}
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={() => addBet({ type: 'low', payout: 2, label: '1-18 (2x)' })}
+                    disabled={isSpinning}
+                    className="p-4 bg-blue-600 hover:bg-blue-500 rounded-lg border-2 border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <p className="font-bold text-white">1-18</p>
+                    <p className="text-sm text-white/80">Low (2x)</p>
+                  </button>
+                  <button
+                    onClick={() => addBet({ type: 'high', payout: 2, label: '19-36 (2x)' })}
+                    disabled={isSpinning}
+                    className="p-4 bg-purple-600 hover:bg-purple-500 rounded-lg border-2 border-purple-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <p className="font-bold text-white">19-36</p>
+                    <p className="text-sm text-white/80">High (2x)</p>
+                  </button>
+                  <button
+                    onClick={() => addBet({ type: 'even', payout: 2, label: 'Even (2x)' })}
+                    disabled={isSpinning}
+                    className="p-4 bg-indigo-600 hover:bg-indigo-500 rounded-lg border-2 border-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <p className="font-bold text-white">EVEN</p>
+                    <p className="text-sm text-white/80">2x</p>
+                  </button>
+                  <button
+                    onClick={() => addBet({ type: 'odd', payout: 2, label: 'Odd (2x)' })}
+                    disabled={isSpinning}
+                    className="p-4 bg-pink-600 hover:bg-pink-500 rounded-lg border-2 border-pink-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <p className="font-bold text-white">ODD</p>
+                    <p className="text-sm text-white/80">2x</p>
+                  </button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Sidebar */}
+          {/* Side Panel */}
           <div className="space-y-6">
-            {/* Stats */}
+            {/* Current Bets */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-gold" />
-                  Statistics
+                <CardTitle className="flex items-center justify-between">
+                  <span>Your Bets</span>
+                  {bets.length > 0 && (
+                    <Button variant="danger" size="sm" onClick={clearBets} disabled={isSpinning}>
+                      Clear All
+                    </Button>
+                  )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="p-3 bg-game-bg rounded-lg">
-                  <div className="text-xs text-gray-400 mb-1">Balance</div>
-                  <div className="text-xl text-gold font-bold">{formatNumber(user.coins)}</div>
-                </div>
-                <div className="p-3 bg-game-bg rounded-lg">
-                  <div className="text-xs text-gray-400 mb-1">Total Bet</div>
-                  <div className="text-xl font-bold">{formatNumber(totalBet)}</div>
-                </div>
-                <div className="p-3 bg-game-bg rounded-lg">
-                  <div className="text-xs text-gray-400 mb-1">Last 20 Spins</div>
-                  <div className="text-lg font-bold">
-                    <span className="text-red-500">{redCount}R</span> /{' '}
-                    <span className="text-gray-400">{blackCount}B</span>
+              <CardContent>
+                {bets.length === 0 ? (
+                  <p className="text-gray-500 text-center py-4">No bets placed</p>
+                ) : (
+                  <div className="space-y-2">
+                    {bets.map((bet, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 bg-game-bg rounded-lg border border-game-border flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-bold">{bet.label}</p>
+                          <p className="text-sm text-gray-400">Payout: {bet.payout}x</p>
+                        </div>
+                        <p className="text-gold font-bold">{formatNumber(bet.amount)}</p>
+                      </div>
+                    ))}
+                    <div className="pt-3 border-t border-gray-700">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold">Total Bet:</span>
+                        <span className={`text-xl font-bold ${canAfford ? 'text-gold' : 'text-red-500'}`}>
+                          {formatNumber(totalBet)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
@@ -495,60 +523,69 @@ export default function RoulettePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <History className="w-5 h-5 text-blue-500" />
-                  Recent Numbers
+                  <History className="w-5 h-5" />
+                  Recent Results
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {history.length === 0 ? (
-                  <p className="text-center text-gray-400 text-sm py-4">No spins yet</p>
+                  <p className="text-gray-500 text-center py-4">No history yet</p>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {history.map((num, idx) => {
-                      const slot = rouletteNumbers.find(n => n.num === num)
-                      return (
-                        <div
-                          key={idx}
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
-                            slot?.color === 'red'
-                              ? 'bg-red-500'
-                              : slot?.color === 'green'
-                              ? 'bg-green-500'
-                              : 'bg-gray-800'
-                          }`}
-                        >
-                          {num}
-                        </div>
-                      )
-                    })}
-                  </div>
+                  <>
+                    <div className="grid grid-cols-5 gap-2 mb-4">
+                      {history.slice(0, 20).map((num, idx) => {
+                        const slot = rouletteNumbers.find(s => s.num === num)
+                        return (
+                          <div
+                            key={idx}
+                            className={`aspect-square rounded-lg flex items-center justify-center font-bold text-white ${
+                              slot?.color === 'red'
+                                ? 'bg-red-500'
+                                : slot?.color === 'green'
+                                ? 'bg-green-500'
+                                : 'bg-gray-700'
+                            }`}
+                          >
+                            {num}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="bg-red-500/20 border border-red-500 rounded p-2 text-center">
+                        <p className="text-red-400 font-bold">Red: {redCount}</p>
+                      </div>
+                      <div className="bg-green-500/20 border border-green-500 rounded p-2 text-center">
+                        <p className="text-green-400 font-bold">Green: {greenCount}</p>
+                      </div>
+                      <div className="bg-gray-500/20 border border-gray-500 rounded p-2 text-center">
+                        <p className="text-gray-300 font-bold">Black: {blackCount}</p>
+                      </div>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
 
-            {/* Rules */}
+            {/* Stats */}
             <Card>
               <CardHeader>
-                <CardTitle>Payouts</CardTitle>
+                <CardTitle>Info</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Straight Up:</span>
-                    <span className="font-bold text-gold">36:1</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Red/Black:</span>
-                    <span className="font-bold">2:1</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Odd/Even:</span>
-                    <span className="font-bold">2:1</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">1-18 / 19-36:</span>
-                    <span className="font-bold">2:1</span>
-                  </div>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Your Coins</span>
+                  <span className="text-gold font-bold">{formatNumber(user.coins)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Total Bets</span>
+                  <span className="font-bold">{bets.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Spins</span>
+                  <span className="font-bold">{history.length}</span>
                 </div>
               </CardContent>
             </Card>
