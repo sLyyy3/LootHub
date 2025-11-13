@@ -140,7 +140,7 @@ export default function AdminPage() {
       }
 
       // Build recent activity feed
-      const activities = []
+      const activities: any[] = []
 
       // Add recent games
       if (gamesData) {
