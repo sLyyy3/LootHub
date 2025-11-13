@@ -39,3 +39,38 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# turbopack / next.js build artifacts
+\[turbopack\]*.js
+\[turbopack\]*.js.map
+\[root-of-the-server\]*.js
+\[root-of-the-server\]*.js.map
+\[root-of-the-server\]*.css
+\[root-of-the-server\]*.css.map
+\[next\]*.css
+\[next\]*.css.map
+*\_.js
+*\_.js.map
+*\_.css
+*\_.css.map
+_next-internal_*.js
+_next-internal_*.js.map
+app_*.js
+app_*.js.map
+node_modules_*.js
+node_modules_*.js.map
+turbopack-*.js
+
+# build manifests and metadata
+*-manifest.js
+*-manifest.json
+*.rscinfo
+trace
+next-development.log
+next-devtools-config.json
+
+# next.js duplicated config
+next.config.js
+
+# fonts (if generated)
+*.woff2
