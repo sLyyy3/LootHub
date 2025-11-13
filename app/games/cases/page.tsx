@@ -6,49 +6,108 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Package, Star, Sparkles } from 'lucide-react'
+import { Package, Star, Sparkles, Plus, Minus, ShoppingBag } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
 
 const cases = [
   {
+    id: 'beginner',
+    name: 'Beginner Case',
+    price: 50,
+    color: 'bg-gray-600',
+    image: '📦',
+    items: [
+      { name: 'Scratched P250', rarity: 'common', value: 30, chance: 45 },
+      { name: 'Glock Fade', rarity: 'uncommon', value: 80, chance: 35 },
+      { name: 'USP-S Guardian', rarity: 'rare', value: 150, chance: 15 },
+      { name: 'M4A4 Asiimov', rarity: 'epic', value: 300, chance: 4 },
+      { name: 'AWP Dragon Lore', rarity: 'legendary', value: 800, chance: 1 },
+    ],
+  },
+  {
     id: 'starter',
     name: 'Starter Case',
     price: 100,
-    color: 'bg-gray-600',
+    color: 'bg-green-600',
+    image: '🎁',
     items: [
-      { name: 'Common Skin', rarity: 'common', value: 50, chance: 50 },
-      { name: 'Uncommon Knife', rarity: 'uncommon', value: 150, chance: 30 },
-      { name: 'Rare AWP', rarity: 'rare', value: 300, chance: 15 },
-      { name: 'Epic AK-47', rarity: 'epic', value: 500, chance: 4 },
-      { name: 'Legendary Dragon Lore', rarity: 'legendary', value: 1000, chance: 1 },
+      { name: 'AK-47 Redline', rarity: 'common', value: 80, chance: 50 },
+      { name: 'M4A1-S Hyper Beast', rarity: 'uncommon', value: 200, chance: 30 },
+      { name: 'AWP Lightning Strike', rarity: 'rare', value: 400, chance: 15 },
+      { name: 'Karambit Damascus', rarity: 'epic', value: 800, chance: 4 },
+      { name: 'Dragon King AK', rarity: 'legendary', value: 1500, chance: 1 },
     ],
   },
   {
     id: 'premium',
     name: 'Premium Case',
     price: 500,
-    color: 'bg-blue-rare',
+    color: 'bg-blue-600',
+    image: '💎',
     items: [
-      { name: 'Uncommon Glock', rarity: 'uncommon', value: 300, chance: 40 },
-      { name: 'Rare M4A4', rarity: 'rare', value: 700, chance: 35 },
-      { name: 'Epic Butterfly Knife', rarity: 'epic', value: 1500, chance: 20 },
-      { name: 'Legendary Howl', rarity: 'legendary', value: 3000, chance: 4 },
-      { name: 'Mythic Karambit', rarity: 'mythic', value: 10000, chance: 1 },
+      { name: 'Butterfly Knife', rarity: 'uncommon', value: 400, chance: 40 },
+      { name: 'Karambit Fade', rarity: 'rare', value: 900, chance: 35 },
+      { name: 'M4A4 Howl', rarity: 'epic', value: 2000, chance: 20 },
+      { name: 'AWP Medusa', rarity: 'legendary', value: 4500, chance: 4 },
+      { name: 'Souvenir Dragon Lore', rarity: 'mythic', value: 12000, chance: 1 },
     ],
   },
   {
     id: 'elite',
     name: 'Elite Case',
     price: 1000,
-    color: 'bg-purple-epic',
+    color: 'bg-purple-600',
+    image: '⚡',
     items: [
-      { name: 'Rare USP-S', rarity: 'rare', value: 1000, chance: 45 },
-      { name: 'Epic Desert Eagle', rarity: 'epic', value: 2000, chance: 35 },
-      { name: 'Legendary Fire Serpent', rarity: 'legendary', value: 5000, chance: 15 },
-      { name: 'Mythic Fade', rarity: 'mythic', value: 15000, chance: 4 },
-      { name: 'Divine Emerald', rarity: 'divine', value: 50000, chance: 1 },
+      { name: 'Bayonet Doppler', rarity: 'rare', value: 1200, chance: 45 },
+      { name: 'Karambit Tiger Tooth', rarity: 'epic', value: 2500, chance: 35 },
+      { name: 'M9 Bayonet Crimson Web', rarity: 'legendary', value: 6000, chance: 15 },
+      { name: 'Butterfly Sapphire', rarity: 'mythic', value: 18000, chance: 4 },
+      { name: 'Factory New Dragon Lore', rarity: 'divine', value: 60000, chance: 1 },
+    ],
+  },
+  {
+    id: 'vip',
+    name: 'VIP Case',
+    price: 2500,
+    color: 'bg-yellow-600',
+    image: '👑',
+    items: [
+      { name: 'Karambit Lore', rarity: 'rare', value: 3000, chance: 45 },
+      { name: 'M9 Marble Fade', rarity: 'epic', value: 6000, chance: 35 },
+      { name: 'Karambit Fade FN', rarity: 'legendary', value: 12000, chance: 15 },
+      { name: 'Howl FN Stattrak', rarity: 'mythic', value: 30000, chance: 4 },
+      { name: 'Blue Gem Karambit', rarity: 'divine', value: 100000, chance: 1 },
+    ],
+  },
+  {
+    id: 'ultimate',
+    name: 'Ultimate Case',
+    price: 5000,
+    color: 'bg-red-600',
+    image: '🔥',
+    items: [
+      { name: 'Sport Gloves Pandora', rarity: 'epic', value: 8000, chance: 45 },
+      { name: 'Karambit Ruby', rarity: 'legendary', value: 18000, chance: 35 },
+      { name: 'M9 Sapphire', rarity: 'mythic', value: 40000, chance: 15 },
+      { name: 'Karambit Black Pearl', rarity: 'divine', value: 90000, chance: 4 },
+      { name: 'Souvenir AWP Dragon Lore FN', rarity: 'divine', value: 250000, chance: 1 },
+    ],
+  },
+  {
+    id: 'godlike',
+    name: 'Godlike Case',
+    price: 10000,
+    color: 'bg-pink-600',
+    image: '✨',
+    items: [
+      { name: 'Driver Gloves Crimson Weave', rarity: 'legendary', value: 25000, chance: 45 },
+      { name: 'Karambit Emerald', rarity: 'mythic', value: 60000, chance: 35 },
+      { name: 'IBP Holo Sticker', rarity: 'divine', value: 150000, chance: 15 },
+      { name: 'Karambit Case Hardened 661', rarity: 'divine', value: 350000, chance: 4 },
+      { name: 'Souvenir Pink DDPAT', rarity: 'divine', value: 1000000, chance: 1 },
     ],
   },
 ]
@@ -77,10 +136,12 @@ export default function CasesPage() {
   const { user, isLoading, refreshUser, updateUser } = useUser()
   const router = useRouter()
   const [selectedCase, setSelectedCase] = useState(cases[0])
+  const [casesAmount, setCasesAmount] = useState(1)
   const [isOpening, setIsOpening] = useState(false)
-  const [wonItem, setWonItem] = useState<any>(null)
+  const [wonItems, setWonItems] = useState<any[]>([])
   const [reelItems, setReelItems] = useState<any[]>([])
   const [isAnimating, setIsAnimating] = useState(false)
+  const [currentRound, setCurrentRound] = useState(0)
   const reelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -106,89 +167,126 @@ export default function CasesPage() {
     return items
   }
 
-  const openCase = async () => {
-    if (!user || selectedCase.price > user.coins) {
+  const determineWonItem = () => {
+    const random = Math.random() * 100
+    let cumulativeChance = 0
+
+    for (const caseItem of selectedCase.items) {
+      cumulativeChance += caseItem.chance
+      if (random <= cumulativeChance) {
+        return caseItem
+      }
+    }
+    return selectedCase.items[0]
+  }
+
+  const openCases = async () => {
+    if (!user || selectedCase.price * casesAmount > user.coins) {
       toast.error('Insufficient coins')
       return
     }
 
     setIsOpening(true)
-    setWonItem(null)
-    setIsAnimating(false)
+    setWonItems([])
+    setCurrentRound(0)
 
-    // Determine won item based on chances
-    const random = Math.random() * 100
-    let cumulativeChance = 0
-    let item = selectedCase.items[0]
+    const itemsWon = []
 
-    for (const caseItem of selectedCase.items) {
-      cumulativeChance += caseItem.chance
-      if (random <= cumulativeChance) {
-        item = caseItem
-        break
-      }
+    // Open all cases
+    for (let i = 0; i < casesAmount; i++) {
+      const item = determineWonItem()
+      itemsWon.push(item)
     }
 
-    // Generate reel items with winning item
-    const items = generateReelItems(item)
-    setReelItems(items)
+    // Animate each round
+    for (let round = 0; round < casesAmount; round++) {
+      setCurrentRound(round + 1)
+      setIsAnimating(false)
+      setReelItems([])
 
-    // Start animation after a brief delay
-    setTimeout(() => {
+      await new Promise(resolve => setTimeout(resolve, 200))
+
+      const items = generateReelItems(itemsWon[round])
+      setReelItems(items)
+
+      await new Promise(resolve => setTimeout(resolve, 100))
       setIsAnimating(true)
 
-      // After animation completes
-      setTimeout(async () => {
-        setWonItem(item)
-        setIsAnimating(false)
+      // Wait for animation
+      await new Promise(resolve => setTimeout(resolve, 5000))
+      setWonItems(prev => [...prev, itemsWon[round]])
+      setIsAnimating(false)
 
-        try {
-          const profit = item.value - selectedCase.price
-          const xpGain = Math.floor(selectedCase.price / 10)
-          const newCoins = user.coins + profit
-          const newXp = user.xp + xpGain
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
 
-          // Optimistically update UI
-          updateUser({ coins: newCoins, xp: newXp })
+    // Save all items to database
+    try {
+      const totalCost = selectedCase.price * casesAmount
+      const totalValue = itemsWon.reduce((sum, item) => sum + item.value, 0)
+      const profit = totalValue - totalCost
+      const xpGain = Math.floor(totalCost / 10)
+      const newCoins = user.coins + profit
+      const newXp = user.xp + xpGain
 
-          const { error } = await supabase
-            .from('users')
-            .update({
-              coins: newCoins,
-              xp: newXp,
-            })
-            .eq('id', user.id)
+      // Optimistically update UI
+      updateUser({ coins: newCoins, xp: newXp })
 
-          if (error) throw error
+      // Update user
+      const { error: userError } = await supabase
+        .from('users')
+        .update({
+          coins: newCoins,
+          xp: newXp,
+        })
+        .eq('id', user.id)
 
-          await supabase.from('games').insert([
-            {
-              player_id: user.id,
-              type: 'cases',
-              bet_amount: selectedCase.price,
-              result: profit > 0 ? 'win' : 'loss',
-              payout: item.value,
-              item_name: item.name,
-            },
-          ])
+      if (userError) throw userError
 
-          if (profit > 0) {
-            toast.success(`🎉 You won ${item.name}! Profit: ${formatNumber(profit)} coins!`, {
-              duration: 4000,
-              icon: '🔥',
-            })
-          } else {
-            toast.error(`You got ${item.name}. Loss: ${formatNumber(Math.abs(profit))} coins`)
-          }
-        } catch (error) {
-          toast.error('Failed to open case')
-          // Revert on error
-          await refreshUser()
-        } finally {
-          setIsOpening(false)
-        }
-      }, 5000) // Animation duration
-    }, 100)
+      // Add items to inventory
+      const inventoryItems = itemsWon.map(item => ({
+        owner_id: user.id,
+        name: item.name,
+        rarity: item.rarity,
+        value: item.value,
+        case_id: selectedCase.id,
+      }))
+
+      const { error: itemsError } = await supabase
+        .from('items')
+        .insert(inventoryItems)
+
+      if (itemsError) throw itemsError
+
+      // Save game history
+      await supabase.from('games').insert([
+        {
+          player_id: user.id,
+          type: 'cases',
+          bet_amount: totalCost,
+          result: profit > 0 ? 'win' : 'loss',
+          payout: totalValue,
+          item_name: itemsWon.map(i => i.name).join(', '),
+        },
+      ])
+
+      if (profit > 0) {
+        toast.success(`🎉 Opened ${casesAmount} case${casesAmount > 1 ? 's' : ''}! Total value: ${formatNumber(totalValue)} | Profit: +${formatNumber(profit)}`, {
+          duration: 5000,
+          icon: '🔥',
+        })
+      } else {
+        toast.error(`Opened ${casesAmount} case${casesAmount > 1 ? 's' : ''}. Total value: ${formatNumber(totalValue)} | Loss: ${formatNumber(Math.abs(profit))}`, {
+          duration: 5000,
+        })
+      }
+    } catch (error) {
+      toast.error('Failed to open cases')
+      await refreshUser()
+    } finally {
+      setIsOpening(false)
+      setCurrentRound(0)
+    }
   }
 
   if (isLoading || !user) {
@@ -199,60 +297,110 @@ export default function CasesPage() {
     )
   }
 
+  const totalCost = selectedCase.price * casesAmount
+  const canAfford = user.coins >= totalCost
+
   return (
     <div className="min-h-screen">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            <span className="text-gradient-gold">Case Opening</span>
-          </h1>
-          <p className="text-gray-400">Open cases to win valuable items!</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">
+              <span className="text-gradient-gold">Case Opening</span>
+            </h1>
+            <p className="text-gray-400">Open cases to win valuable items!</p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => router.push('/inventory')}
+            className="flex items-center gap-2"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            View Inventory
+          </Button>
         </div>
 
-        {/* Case Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Case Selection Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
           {cases.map((caseItem) => (
-            <Card
+            <button
               key={caseItem.id}
-              className={`cursor-pointer transition-all hover:scale-105 ${
-                selectedCase.id === caseItem.id ? 'border-gold border-2 shadow-[0_0_20px_rgba(234,179,8,0.3)]' : ''
-              }`}
-              onClick={() => !isOpening && setSelectedCase(caseItem)}
+              onClick={() => {
+                setSelectedCase(caseItem)
+                setWonItems([])
+                setReelItems([])
+              }}
+              disabled={isOpening}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                selectedCase.id === caseItem.id
+                  ? 'border-gold bg-gold/10 scale-105 shadow-[0_0_20px_rgba(234,179,8,0.3)]'
+                  : 'border-game-border bg-game-card hover:border-gold/50 hover:scale-102'
+              } ${isOpening ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>{caseItem.name}</CardTitle>
-                  <Package className={`w-8 h-8 ${caseItem.color.replace('bg-', 'text-')}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center mb-4">
-                  <div className={`text-2xl font-bold text-gold`}>
-                    {formatNumber(caseItem.price)} coins
-                  </div>
-                </div>
-                <div className="space-y-1 text-sm">
-                  {caseItem.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center">
-                      <span className={`capitalize font-medium bg-gradient-to-r ${rarityColors[item.rarity]} bg-clip-text text-transparent`}>
-                        {item.rarity}
-                      </span>
-                      <span className="text-gray-400">{item.chance}%</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+              <div className="text-5xl mb-2">{caseItem.image}</div>
+              <p className="font-bold text-sm mb-1 truncate">{caseItem.name}</p>
+              <p className="text-gold font-bold text-xs">{formatNumber(caseItem.price)}</p>
+            </button>
           ))}
         </div>
+
+        {/* Amount Selector */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Select Amount</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setCasesAmount(Math.max(1, casesAmount - 1))}
+                disabled={isOpening || casesAmount <= 1}
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+              <div className="flex-1 text-center">
+                <div className="text-4xl font-bold text-gold">{casesAmount}</div>
+                <div className="text-sm text-gray-400">
+                  {casesAmount === 1 ? 'case' : 'cases'} • Total: {formatNumber(totalCost)} coins
+                </div>
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setCasesAmount(Math.min(10, casesAmount + 1))}
+                disabled={isOpening || casesAmount >= 10}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-5 gap-2 mt-4">
+              {[1, 2, 3, 5, 10].map((amount) => (
+                <Button
+                  key={amount}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCasesAmount(amount)}
+                  disabled={isOpening}
+                  className="font-bold"
+                >
+                  {amount}x
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Opening Area */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Open {selectedCase.name}</span>
+              <span>
+                Open {selectedCase.name}
+                {isOpening && currentRound > 0 && ` (${currentRound}/${casesAmount})`}
+              </span>
               <span className="text-gold text-lg">{formatNumber(user.coins)} coins</span>
             </CardTitle>
           </CardHeader>
@@ -293,34 +441,56 @@ export default function CasesPage() {
                 ) : (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-gray-400">
-                      <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p>Click "Open Case" to start!</p>
+                      <div className="text-6xl mb-4">{selectedCase.image}</div>
+                      <p className="text-lg font-bold">Ready to open!</p>
+                      <p className="text-sm">Click "Open Cases" to start</p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Result Display */}
-            {wonItem && !isAnimating && (
-              <div className="mb-6 p-6 bg-gradient-to-br from-game-card to-game-bg rounded-lg border-2 border-gold animate-pulse-slow">
-                <div className="text-center">
-                  <Sparkles className="w-16 h-16 text-gold mx-auto mb-4 animate-bounce" />
-                  <h3 className={`text-3xl font-bold mb-2 bg-gradient-to-r ${rarityColors[wonItem.rarity]} bg-clip-text text-transparent`}>
-                    {wonItem.name}
-                  </h3>
-                  <p className="text-2xl text-gold font-bold mb-2">{formatNumber(wonItem.value)} coins</p>
-                  <p className="text-sm text-gray-400 capitalize">{wonItem.rarity} rarity</p>
-                  <div className="mt-4">
-                    {wonItem.value > selectedCase.price ? (
-                      <p className="text-green-500 text-xl font-bold">
-                        Profit: +{formatNumber(wonItem.value - selectedCase.price)} coins 📈
-                      </p>
-                    ) : (
-                      <p className="text-red-500 text-xl font-bold">
-                        Loss: {formatNumber(selectedCase.price - wonItem.value)} coins 📉
-                      </p>
-                    )}
+            {/* Won Items Display */}
+            {wonItems.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-gold" />
+                  Items Won ({wonItems.length})
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  {wonItems.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-0.5 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} ${rarityGlow[item.rarity]} animate-pulse-slow`}
+                    >
+                      <div className="bg-game-card rounded-lg p-4 h-full">
+                        <Star className="w-12 h-12 mx-auto mb-2" />
+                        <p className={`font-bold text-center mb-1 text-sm bg-gradient-to-r ${rarityColors[item.rarity]} bg-clip-text text-transparent`}>
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-gray-400 text-center capitalize mb-2">{item.rarity}</p>
+                        <p className="text-gold font-bold text-center text-lg">{formatNumber(item.value)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 p-4 bg-gradient-to-r from-gold/10 to-gold/5 border border-gold/30 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold">Total Value:</span>
+                    <span className="text-2xl font-bold text-gold">
+                      {formatNumber(wonItems.reduce((sum, item) => sum + item.value, 0))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-sm text-gray-400">Cost:</span>
+                    <span className="text-lg font-bold">{formatNumber(totalCost)}</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-lg font-bold">Profit/Loss:</span>
+                    <span className={`text-2xl font-bold ${wonItems.reduce((sum, item) => sum + item.value, 0) - totalCost >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {wonItems.reduce((sum, item) => sum + item.value, 0) - totalCost >= 0 ? '+' : ''}
+                      {formatNumber(wonItems.reduce((sum, item) => sum + item.value, 0) - totalCost)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -331,17 +501,25 @@ export default function CasesPage() {
               variant="primary"
               size="lg"
               className="w-full text-xl py-6"
-              onClick={openCase}
+              onClick={openCases}
               isLoading={isOpening}
-              disabled={selectedCase.price > user.coins || isOpening}
+              disabled={!canAfford || isOpening}
             >
               <Package className="w-6 h-6 mr-2" />
-              {isOpening ? 'Opening...' : `Open Case (${formatNumber(selectedCase.price)} coins)`}
+              {isOpening
+                ? `Opening... ${currentRound}/${casesAmount}`
+                : `Open ${casesAmount}x ${selectedCase.name} (${formatNumber(totalCost)} coins)`}
             </Button>
+
+            {!canAfford && (
+              <p className="text-center text-red-500 mt-2 font-bold">
+                Insufficient coins! Need {formatNumber(totalCost - user.coins)} more
+              </p>
+            )}
           </CardContent>
         </Card>
 
-        {/* Possible Items Grid */}
+        {/* Case Details */}
         <Card>
           <CardHeader>
             <CardTitle>Possible Items in {selectedCase.name}</CardTitle>

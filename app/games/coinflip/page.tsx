@@ -6,10 +6,17 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Coins, TrendingUp, TrendingDown } from 'lucide-react'
+import { Coins, TrendingUp, TrendingDown, History, Flame, Target } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
+
+interface FlipHistory {
+  result: 'heads' | 'tails'
+  won: boolean
+  amount: number
+  time: Date
+}
 
 export default function CoinflipPage() {
   const { user, isLoading, refreshUser, updateUser } = useUser()
@@ -20,12 +27,55 @@ export default function CoinflipPage() {
   const [result, setResult] = useState<'heads' | 'tails' | null>(null)
   const [won, setWon] = useState<boolean | null>(null)
   const [showResult, setShowResult] = useState(false)
+  const [flipHistory, setFlipHistory] = useState<FlipHistory[]>([])
+  const [currentStreak, setCurrentStreak] = useState(0)
+  const [bestStreak, setBestStreak] = useState(0)
+  const [totalFlips, setTotalFlips] = useState(0)
+  const [totalWins, setTotalWins] = useState(0)
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login')
     }
   }, [user, isLoading, router])
+
+  useEffect(() => {
+    loadStats()
+  }, [user])
+
+  const loadStats = async () => {
+    if (!user) return
+
+    try {
+      const { data } = await supabase
+        .from('games')
+        .select('*')
+        .eq('player_id', user.id)
+        .eq('type', 'coinflip')
+        .order('created_at', { ascending: false })
+        .limit(50)
+
+      if (data) {
+        setTotalFlips(data.length)
+        setTotalWins(data.filter(g => g.result === 'win').length)
+
+        // Calculate best streak
+        let streak = 0
+        let maxStreak = 0
+        data.reverse().forEach(game => {
+          if (game.result === 'win') {
+            streak++
+            maxStreak = Math.max(maxStreak, streak)
+          } else {
+            streak = 0
+          }
+        })
+        setBestStreak(maxStreak)
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error)
+    }
+  }
 
   const playCoinflip = async () => {
     if (!user || betAmount > user.coins || betAmount < 10) {
@@ -48,6 +98,28 @@ export default function CoinflipPage() {
         setResult(flipResult)
         setWon(didWin)
         setShowResult(true)
+
+        // Update history
+        const newHistory: FlipHistory = {
+          result: flipResult,
+          won: didWin,
+          amount: betAmount,
+          time: new Date(),
+        }
+        setFlipHistory(prev => [newHistory, ...prev.slice(0, 9)])
+
+        // Update streak
+        if (didWin) {
+          setCurrentStreak(prev => {
+            const newStreak = prev + 1
+            setBestStreak(current => Math.max(current, newStreak))
+            return newStreak
+          })
+          setTotalWins(prev => prev + 1)
+        } else {
+          setCurrentStreak(0)
+        }
+        setTotalFlips(prev => prev + 1)
       }, 3000) // Coin flip animation duration
 
       // Update database after animation
@@ -82,7 +154,8 @@ export default function CoinflipPage() {
           ])
 
           if (didWin) {
-            toast.success(`🎉 You won ${formatNumber(betAmount * 2)} coins!`, {
+            const streakBonus = currentStreak >= 3 ? ` 🔥 ${currentStreak + 1} Win Streak!` : ''
+            toast.success(`🎉 You won ${formatNumber(betAmount * 2)} coins!${streakBonus}`, {
               duration: 3000,
               icon: '💰',
             })
@@ -113,16 +186,45 @@ export default function CoinflipPage() {
     )
   }
 
+  const winRate = totalFlips > 0 ? ((totalWins / totalFlips) * 100).toFixed(1) : '0.0'
+
   return (
     <div className="min-h-screen">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
             <span className="text-gradient-gold">Coinflip</span>
           </h1>
           <p className="text-gray-400">Choose heads or tails and double your bet!</p>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <div className="bg-game-card border border-game-border rounded-lg p-4">
+            <div className="text-xs text-gray-400 mb-1">Total Flips</div>
+            <div className="text-2xl font-bold">{totalFlips}</div>
+          </div>
+          <div className="bg-game-card border border-game-border rounded-lg p-4">
+            <div className="text-xs text-gray-400 mb-1">Win Rate</div>
+            <div className="text-2xl font-bold text-green-win">{winRate}%</div>
+          </div>
+          <div className="bg-game-card border border-game-border rounded-lg p-4">
+            <div className="text-xs text-gray-400 mb-1">Current Streak</div>
+            <div className="text-2xl font-bold text-gold flex items-center gap-1">
+              {currentStreak > 0 && <Flame className="w-5 h-5 text-orange-500" />}
+              {currentStreak}
+            </div>
+          </div>
+          <div className="bg-game-card border border-game-border rounded-lg p-4">
+            <div className="text-xs text-gray-400 mb-1">Best Streak</div>
+            <div className="text-2xl font-bold text-purple-epic">{bestStreak}</div>
+          </div>
+          <div className="bg-game-card border border-game-border rounded-lg p-4">
+            <div className="text-xs text-gray-400 mb-1">Balance</div>
+            <div className="text-2xl font-bold text-gold">{formatNumber(user.coins)}</div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -136,20 +238,29 @@ export default function CoinflipPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* 3D Coin Display */}
-              <div className="flex justify-center items-center min-h-[300px]">
+              <div className="flex justify-center items-center min-h-[320px] bg-gradient-to-b from-game-bg via-game-card to-game-bg rounded-lg p-8">
                 <div className="relative w-64 h-64">
                   <style jsx>{`
                     @keyframes flipHeads {
-                      0% { transform: rotateY(0deg); }
-                      100% { transform: rotateY(1800deg); }
+                      0% { transform: rotateY(0deg) rotateX(0deg); }
+                      50% { transform: rotateY(900deg) rotateX(20deg) scale(1.1); }
+                      100% { transform: rotateY(1800deg) rotateX(0deg) scale(1); }
                     }
                     @keyframes flipTails {
-                      0% { transform: rotateY(0deg); }
-                      100% { transform: rotateY(1980deg); }
+                      0% { transform: rotateY(0deg) rotateX(0deg); }
+                      50% { transform: rotateY(990deg) rotateX(20deg) scale(1.1); }
+                      100% { transform: rotateY(1980deg) rotateX(0deg) scale(1); }
+                    }
+                    @keyframes float {
+                      0%, 100% { transform: translateY(0px); }
+                      50% { transform: translateY(-10px); }
                     }
                     .coin {
                       transform-style: preserve-3d;
-                      transition: transform 3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                      transition: transform 0.3s ease;
+                    }
+                    .coin.idle {
+                      animation: float 3s ease-in-out infinite;
                     }
                     .coin.flipping-heads {
                       animation: flipHeads 3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -165,11 +276,12 @@ export default function CoinflipPage() {
                       border-radius: 50%;
                       display: flex;
                       align-items: center;
-                      justify-content: center;
-                      font-size: 4rem;
+                      justify-center: center;
+                      font-size: 5rem;
                       font-weight: bold;
-                      box-shadow: 0 0 40px rgba(234, 179, 8, 0.6),
-                                  inset 0 0 20px rgba(0, 0, 0, 0.3);
+                      box-shadow: 0 10px 60px rgba(234, 179, 8, 0.4),
+                                  inset 0 0 30px rgba(0, 0, 0, 0.3);
+                      border: 8px solid rgba(234, 179, 8, 0.3);
                     }
                     .coin-heads {
                       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
@@ -187,7 +299,7 @@ export default function CoinflipPage() {
                         ? result === 'heads'
                           ? 'flipping-heads'
                           : 'flipping-tails'
-                        : ''
+                        : 'idle'
                     }`}
                     style={{
                       width: '100%',
@@ -196,10 +308,10 @@ export default function CoinflipPage() {
                     }}
                   >
                     <div className="coin-face coin-heads">
-                      <span className="text-white drop-shadow-lg">H</span>
+                      <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">H</span>
                     </div>
                     <div className="coin-face coin-tails">
-                      <span className="text-white drop-shadow-lg">T</span>
+                      <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">T</span>
                     </div>
                   </div>
                 </div>
@@ -207,30 +319,37 @@ export default function CoinflipPage() {
 
               {/* Result Display */}
               {showResult && won !== null && (
-                <div className={`text-center p-6 rounded-lg ${
+                <div className={`text-center p-6 rounded-lg border-2 ${
                   won
-                    ? 'bg-gradient-to-r from-green-500/20 to-green-600/20 border-2 border-green-500'
-                    : 'bg-gradient-to-r from-red-500/20 to-red-600/20 border-2 border-red-500'
-                } animate-pulse`}>
-                  <div className={`text-3xl font-bold mb-2 ${won ? 'text-green-500' : 'text-red-500'}`}>
+                    ? 'bg-gradient-to-r from-green-500/10 via-green-600/10 to-green-500/10 border-green-500 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
+                    : 'bg-gradient-to-r from-red-500/10 via-red-600/10 to-red-500/10 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
+                } animate-pulse-slow`}>
+                  <div className={`text-4xl font-bold mb-3 ${won ? 'text-green-500' : 'text-red-500'}`}>
                     {won ? '🎉 YOU WON! 🎉' : '💔 YOU LOST 💔'}
                   </div>
-                  <div className="flex items-center justify-center gap-2 text-2xl font-bold">
+                  <div className="flex items-center justify-center gap-3 text-3xl font-bold mb-2">
                     {won ? (
                       <>
-                        <TrendingUp className="w-8 h-8 text-green-500" />
+                        <TrendingUp className="w-10 h-10 text-green-500" />
                         <span className="text-green-500">+{formatNumber(betAmount * 2)} coins</span>
                       </>
                     ) : (
                       <>
-                        <TrendingDown className="w-8 h-8 text-red-500" />
+                        <TrendingDown className="w-10 h-10 text-red-500" />
                         <span className="text-red-500">-{formatNumber(betAmount)} coins</span>
                       </>
                     )}
                   </div>
-                  <div className="mt-2 text-gray-400">
-                    Result: <span className="font-bold text-white uppercase">{result}</span>
+                  <div className="mt-3 text-gray-300">
+                    The coin landed on <span className="font-bold text-white uppercase text-xl">{result}</span>
                   </div>
+                  {won && currentStreak >= 2 && (
+                    <div className="mt-3 flex items-center justify-center gap-2 text-orange-500">
+                      <Flame className="w-6 h-6" />
+                      <span className="font-bold text-lg">{currentStreak} Win Streak!</span>
+                      <Flame className="w-6 h-6" />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -243,13 +362,13 @@ export default function CoinflipPage() {
                     disabled={isFlipping}
                     className={`p-6 rounded-lg border-2 transition-all ${
                       selectedSide === 'heads'
-                        ? 'border-yellow-500 bg-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.4)]'
-                        : 'border-game-border bg-game-card hover:border-yellow-500/50'
+                        ? 'border-yellow-500 bg-yellow-500/20 shadow-[0_0_30px_rgba(234,179,8,0.4)] scale-105'
+                        : 'border-game-border bg-game-card hover:border-yellow-500/50 hover:scale-102'
                     } ${isFlipping ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
-                    <div className="text-4xl mb-2">👑</div>
-                    <div className="text-xl font-bold text-yellow-500">HEADS</div>
-                    <div className="text-sm text-gray-400 mt-1">50% chance</div>
+                    <div className="text-5xl mb-3">👑</div>
+                    <div className="text-2xl font-bold text-yellow-500 mb-1">HEADS</div>
+                    <div className="text-sm text-gray-400">50% chance • 2x payout</div>
                   </button>
 
                   <button
@@ -257,13 +376,13 @@ export default function CoinflipPage() {
                     disabled={isFlipping}
                     className={`p-6 rounded-lg border-2 transition-all ${
                       selectedSide === 'tails'
-                        ? 'border-red-500 bg-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.4)]'
-                        : 'border-game-border bg-game-card hover:border-red-500/50'
+                        ? 'border-red-500 bg-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.4)] scale-105'
+                        : 'border-game-border bg-game-card hover:border-red-500/50 hover:scale-102'
                     } ${isFlipping ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
-                    <div className="text-4xl mb-2">🎯</div>
-                    <div className="text-xl font-bold text-red-500">TAILS</div>
-                    <div className="text-sm text-gray-400 mt-1">50% chance</div>
+                    <div className="text-5xl mb-3">🎯</div>
+                    <div className="text-2xl font-bold text-red-500 mb-1">TAILS</div>
+                    <div className="text-sm text-gray-400">50% chance • 2x payout</div>
                   </button>
                 </div>
               </div>
@@ -279,7 +398,7 @@ export default function CoinflipPage() {
                   onChange={(e) => setBetAmount(Number(e.target.value))}
                   min={10}
                   max={user.coins}
-                  className="w-full px-4 py-3 bg-game-card border border-game-border rounded-lg focus:outline-none focus:border-gold transition-colors text-lg"
+                  className="w-full px-4 py-4 bg-game-card border-2 border-game-border rounded-lg focus:outline-none focus:border-gold transition-colors text-xl font-bold text-center"
                   disabled={isFlipping}
                 />
                 <div className="grid grid-cols-4 gap-2 mt-3">
@@ -296,51 +415,90 @@ export default function CoinflipPage() {
                     </Button>
                   ))}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setBetAmount(user.coins)}
-                  disabled={isFlipping}
-                  className="w-full mt-2 font-bold text-gold"
-                >
-                  MAX ({formatNumber(user.coins)})
-                </Button>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBetAmount(Math.floor(user.coins / 2))}
+                    disabled={isFlipping}
+                    className="font-bold"
+                  >
+                    1/2
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBetAmount(Math.floor(user.coins / 4))}
+                    disabled={isFlipping}
+                    className="font-bold"
+                  >
+                    1/4
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBetAmount(user.coins)}
+                    disabled={isFlipping}
+                    className="font-bold text-gold"
+                  >
+                    MAX
+                  </Button>
+                </div>
               </div>
 
               {/* Play Button */}
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full text-xl py-6"
+                className="w-full text-2xl py-8 shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:shadow-[0_0_40px_rgba(234,179,8,0.5)] transition-all"
                 onClick={playCoinflip}
                 isLoading={isFlipping}
                 disabled={betAmount < 10 || betAmount > user.coins || isFlipping}
               >
-                <Coins className="w-6 h-6 mr-2" />
+                <Coins className="w-8 h-8 mr-3" />
                 {isFlipping ? 'Flipping...' : `Flip Coin (${formatNumber(betAmount)} coins)`}
               </Button>
+
+              {/* Potential Win/Loss Display */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                  <div className="text-xs text-gray-400 mb-1">If you win</div>
+                  <div className="text-2xl font-bold text-green-500">
+                    +{formatNumber(betAmount * 2)}
+                  </div>
+                </div>
+                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <div className="text-xs text-gray-400 mb-1">If you lose</div>
+                  <div className="text-2xl font-bold text-red-500">
+                    -{formatNumber(betAmount)}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Info Cards */}
+          {/* Sidebar */}
           <div className="space-y-6">
             {/* Stats Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Game Stats</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-gold" />
+                  Your Stats
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="p-3 bg-game-bg rounded-lg">
-                  <div className="text-xs text-gray-400 mb-1">Your Balance</div>
+                  <div className="text-xs text-gray-400 mb-1">Balance</div>
                   <div className="text-xl text-gold font-bold">{formatNumber(user.coins)}</div>
                 </div>
                 <div className="p-3 bg-game-bg rounded-lg">
-                  <div className="text-xs text-gray-400 mb-1">Win Chance</div>
-                  <div className="text-xl font-bold">50.0%</div>
+                  <div className="text-xs text-gray-400 mb-1">Win Rate</div>
+                  <div className="text-xl font-bold">{winRate}%</div>
                 </div>
                 <div className="p-3 bg-game-bg rounded-lg">
-                  <div className="text-xs text-gray-400 mb-1">Current Bet</div>
-                  <div className="text-xl font-bold">{formatNumber(betAmount)}</div>
+                  <div className="text-xs text-gray-400 mb-1">Total Flips</div>
+                  <div className="text-xl font-bold">{totalFlips}</div>
                 </div>
                 <div className="p-3 bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/50 rounded-lg">
                   <div className="text-xs text-gray-400 mb-1">Potential Win</div>
@@ -348,6 +506,49 @@ export default function CoinflipPage() {
                     +{formatNumber(betAmount * 2)}
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Flips */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="w-5 h-5 text-blue-rare" />
+                  Recent Flips
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {flipHistory.length === 0 ? (
+                  <p className="text-center text-gray-400 text-sm py-4">No flips yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {flipHistory.map((flip, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center justify-between p-3 rounded-lg ${
+                          flip.won
+                            ? 'bg-green-500/10 border border-green-500/30'
+                            : 'bg-red-500/10 border border-red-500/30'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">
+                            {flip.result === 'heads' ? '👑' : '🎯'}
+                          </span>
+                          <div>
+                            <p className="font-bold text-sm uppercase">{flip.result}</p>
+                            <p className="text-xs text-gray-400">
+                              {flip.time.toLocaleTimeString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className={`font-bold ${flip.won ? 'text-green-500' : 'text-red-500'}`}>
+                          {flip.won ? '+' : '-'}{formatNumber(flip.amount)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -364,22 +565,25 @@ export default function CoinflipPage() {
                   </li>
                   <li className="flex items-start">
                     <span className="text-gold mr-2">2.</span>
-                    <span>Enter your bet amount (min 10 coins)</span>
+                    <span>Enter your bet (min 10 coins)</span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-gold mr-2">3.</span>
-                    <span>Click "Flip Coin" and watch the magic!</span>
+                    <span>Watch the coin flip!</span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-gold mr-2">4.</span>
-                    <span>Win 2x your bet if you guess correctly!</span>
+                    <span>Win 2x your bet if correct!</span>
                   </li>
                 </ul>
 
                 <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                  <div className="text-xs text-yellow-500 font-bold mb-1">💡 PRO TIP</div>
+                  <div className="text-xs text-yellow-500 font-bold mb-1 flex items-center gap-1">
+                    <Flame className="w-4 h-4" />
+                    WIN STREAKS
+                  </div>
                   <div className="text-xs text-gray-300">
-                    Start with smaller bets to build your balance safely!
+                    Build streaks for extra glory! Your best: {bestStreak}
                   </div>
                 </div>
               </CardContent>
