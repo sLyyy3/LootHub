@@ -190,7 +190,7 @@ export default function CasesPage() {
     setWonItems([])
     setCurrentRound(0)
 
-    const itemsWon = []
+    const itemsWon: any[] = []
 
     // Open all cases
     for (let i = 0; i < casesAmount; i++) {
