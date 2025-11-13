@@ -6,19 +6,20 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Coins } from 'lucide-react'
+import { Coins, TrendingUp, TrendingDown } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
 
 export default function CoinflipPage() {
-  const { user, isLoading, refreshUser } = useUser()
+  const { user, isLoading, refreshUser, updateUser } = useUser()
   const router = useRouter()
   const [betAmount, setBetAmount] = useState(100)
   const [selectedSide, setSelectedSide] = useState<'heads' | 'tails'>('heads')
   const [isFlipping, setIsFlipping] = useState(false)
   const [result, setResult] = useState<'heads' | 'tails' | null>(null)
   const [won, setWon] = useState<boolean | null>(null)
+  const [showResult, setShowResult] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -35,53 +36,71 @@ export default function CoinflipPage() {
     setIsFlipping(true)
     setResult(null)
     setWon(null)
+    setShowResult(false)
 
     try {
       // Simulate coin flip
       const flipResult: 'heads' | 'tails' = Math.random() < 0.5 ? 'heads' : 'tails'
       const didWin = flipResult === selectedSide
 
-      // Animate flip
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Wait for animation to complete
+      setTimeout(() => {
+        setResult(flipResult)
+        setWon(didWin)
+        setShowResult(true)
+      }, 3000) // Coin flip animation duration
 
-      setResult(flipResult)
-      setWon(didWin)
+      // Update database after animation
+      setTimeout(async () => {
+        const newCoins = didWin ? user.coins + betAmount : user.coins - betAmount
+        const xpGain = didWin ? Math.floor(betAmount / 10) : Math.floor(betAmount / 20)
+        const newXp = user.xp + xpGain
 
-      // Update user coins
-      const newCoins = didWin ? user.coins + betAmount : user.coins - betAmount
-      const xpGain = didWin ? Math.floor(betAmount / 10) : Math.floor(betAmount / 20)
+        // Optimistically update UI
+        updateUser({ coins: newCoins, xp: newXp })
 
-      const { error } = await supabase
-        .from('users')
-        .update({
-          coins: newCoins,
-          xp: user.xp + xpGain,
-        })
-        .eq('id', user.id)
+        try {
+          const { error } = await supabase
+            .from('users')
+            .update({
+              coins: newCoins,
+              xp: newXp,
+            })
+            .eq('id', user.id)
 
-      if (error) throw error
+          if (error) throw error
 
-      // Save game history
-      await supabase.from('games').insert([
-        {
-          player_id: user.id,
-          type: 'coinflip',
-          bet_amount: betAmount,
-          result: didWin ? 'win' : 'loss',
-          payout: didWin ? betAmount * 2 : 0,
-        },
-      ])
+          // Save game history
+          await supabase.from('games').insert([
+            {
+              player_id: user.id,
+              type: 'coinflip',
+              bet_amount: betAmount,
+              result: didWin ? 'win' : 'loss',
+              payout: didWin ? betAmount * 2 : 0,
+            },
+          ])
 
-      if (didWin) {
-        toast.success(`You won ${formatNumber(betAmount)} coins!`)
-      } else {
-        toast.error(`You lost ${formatNumber(betAmount)} coins`)
-      }
-
-      await refreshUser()
+          if (didWin) {
+            toast.success(`🎉 You won ${formatNumber(betAmount * 2)} coins!`, {
+              duration: 3000,
+              icon: '💰',
+            })
+          } else {
+            toast.error(`You lost ${formatNumber(betAmount)} coins`, {
+              duration: 3000,
+            })
+          }
+        } catch (error) {
+          toast.error('Failed to play game')
+          // Revert on error
+          await refreshUser()
+        } finally {
+          setIsFlipping(false)
+        }
+      }, 3500)
     } catch (error) {
       toast.error('Failed to play game')
-    } finally {
       setIsFlipping(false)
     }
   }
@@ -98,7 +117,7 @@ export default function CoinflipPage() {
     <div className="min-h-screen">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
             <span className="text-gradient-gold">Coinflip</span>
@@ -106,49 +125,146 @@ export default function CoinflipPage() {
           <p className="text-gray-400">Choose heads or tails and double your bet!</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Game Card */}
-          <Card>
+          <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Place Your Bet</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                <span>Place Your Bet</span>
+                <span className="text-gold text-lg">{formatNumber(user.coins)} coins</span>
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Coin Display */}
-              <div className="flex justify-center">
-                <div
-                  className={`w-32 h-32 rounded-full bg-gradient-gold flex items-center justify-center text-4xl font-bold shadow-lg ${
-                    isFlipping ? 'animate-spin' : ''
-                  }`}
-                >
-                  {result ? (result === 'heads' ? 'H' : 'T') : selectedSide === 'heads' ? 'H' : 'T'}
+              {/* 3D Coin Display */}
+              <div className="flex justify-center items-center min-h-[300px]">
+                <div className="relative w-64 h-64">
+                  <style jsx>{`
+                    @keyframes flipHeads {
+                      0% { transform: rotateY(0deg); }
+                      100% { transform: rotateY(1800deg); }
+                    }
+                    @keyframes flipTails {
+                      0% { transform: rotateY(0deg); }
+                      100% { transform: rotateY(1980deg); }
+                    }
+                    .coin {
+                      transform-style: preserve-3d;
+                      transition: transform 3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    }
+                    .coin.flipping-heads {
+                      animation: flipHeads 3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+                    }
+                    .coin.flipping-tails {
+                      animation: flipTails 3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+                    }
+                    .coin-face {
+                      position: absolute;
+                      width: 100%;
+                      height: 100%;
+                      backface-visibility: hidden;
+                      border-radius: 50%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 4rem;
+                      font-weight: bold;
+                      box-shadow: 0 0 40px rgba(234, 179, 8, 0.6),
+                                  inset 0 0 20px rgba(0, 0, 0, 0.3);
+                    }
+                    .coin-heads {
+                      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+                      transform: rotateY(0deg);
+                    }
+                    .coin-tails {
+                      background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+                      transform: rotateY(180deg);
+                    }
+                  `}</style>
+
+                  <div
+                    className={`coin ${
+                      isFlipping && result
+                        ? result === 'heads'
+                          ? 'flipping-heads'
+                          : 'flipping-tails'
+                        : ''
+                    }`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      position: 'relative',
+                    }}
+                  >
+                    <div className="coin-face coin-heads">
+                      <span className="text-white drop-shadow-lg">H</span>
+                    </div>
+                    <div className="coin-face coin-tails">
+                      <span className="text-white drop-shadow-lg">T</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Result Message */}
-              {won !== null && (
-                <div className={`text-center text-xl font-bold ${won ? 'text-green-win' : 'text-red-win'}`}>
-                  {won ? `🎉 You Won ${formatNumber(betAmount * 2)} Coins!` : `😔 You Lost ${formatNumber(betAmount)} Coins`}
+              {/* Result Display */}
+              {showResult && won !== null && (
+                <div className={`text-center p-6 rounded-lg ${
+                  won
+                    ? 'bg-gradient-to-r from-green-500/20 to-green-600/20 border-2 border-green-500'
+                    : 'bg-gradient-to-r from-red-500/20 to-red-600/20 border-2 border-red-500'
+                } animate-pulse`}>
+                  <div className={`text-3xl font-bold mb-2 ${won ? 'text-green-500' : 'text-red-500'}`}>
+                    {won ? '🎉 YOU WON! 🎉' : '💔 YOU LOST 💔'}
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-2xl font-bold">
+                    {won ? (
+                      <>
+                        <TrendingUp className="w-8 h-8 text-green-500" />
+                        <span className="text-green-500">+{formatNumber(betAmount * 2)} coins</span>
+                      </>
+                    ) : (
+                      <>
+                        <TrendingDown className="w-8 h-8 text-red-500" />
+                        <span className="text-red-500">-{formatNumber(betAmount)} coins</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="mt-2 text-gray-400">
+                    Result: <span className="font-bold text-white uppercase">{result}</span>
+                  </div>
                 </div>
               )}
 
               {/* Side Selection */}
               <div>
-                <label className="block text-sm font-medium mb-2">Choose Side</label>
+                <label className="block text-sm font-medium mb-3">Choose Your Side</label>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    variant={selectedSide === 'heads' ? 'primary' : 'secondary'}
-                    onClick={() => setSelectedSide('heads')}
+                  <button
+                    onClick={() => !isFlipping && setSelectedSide('heads')}
                     disabled={isFlipping}
+                    className={`p-6 rounded-lg border-2 transition-all ${
+                      selectedSide === 'heads'
+                        ? 'border-yellow-500 bg-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.4)]'
+                        : 'border-game-border bg-game-card hover:border-yellow-500/50'
+                    } ${isFlipping ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
-                    Heads
-                  </Button>
-                  <Button
-                    variant={selectedSide === 'tails' ? 'primary' : 'secondary'}
-                    onClick={() => setSelectedSide('tails')}
+                    <div className="text-4xl mb-2">👑</div>
+                    <div className="text-xl font-bold text-yellow-500">HEADS</div>
+                    <div className="text-sm text-gray-400 mt-1">50% chance</div>
+                  </button>
+
+                  <button
+                    onClick={() => !isFlipping && setSelectedSide('tails')}
                     disabled={isFlipping}
+                    className={`p-6 rounded-lg border-2 transition-all ${
+                      selectedSide === 'tails'
+                        ? 'border-red-500 bg-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.4)]'
+                        : 'border-game-border bg-game-card hover:border-red-500/50'
+                    } ${isFlipping ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
-                    Tails
-                  </Button>
+                    <div className="text-4xl mb-2">🎯</div>
+                    <div className="text-xl font-bold text-red-500">TAILS</div>
+                    <div className="text-sm text-gray-400 mt-1">50% chance</div>
+                  </button>
                 </div>
               </div>
 
@@ -163,10 +279,10 @@ export default function CoinflipPage() {
                   onChange={(e) => setBetAmount(Number(e.target.value))}
                   min={10}
                   max={user.coins}
-                  className="w-full px-4 py-3 bg-game-card border border-game-border rounded-lg focus:outline-none focus:border-gold transition-colors"
+                  className="w-full px-4 py-3 bg-game-card border border-game-border rounded-lg focus:outline-none focus:border-gold transition-colors text-lg"
                   disabled={isFlipping}
                 />
-                <div className="flex gap-2 mt-2">
+                <div className="grid grid-cols-4 gap-2 mt-3">
                   {[100, 500, 1000, 5000].map((amount) => (
                     <Button
                       key={amount}
@@ -174,63 +290,101 @@ export default function CoinflipPage() {
                       size="sm"
                       onClick={() => setBetAmount(amount)}
                       disabled={isFlipping || amount > user.coins}
+                      className="font-bold"
                     >
                       {formatNumber(amount)}
                     </Button>
                   ))}
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setBetAmount(user.coins)}
+                  disabled={isFlipping}
+                  className="w-full mt-2 font-bold text-gold"
+                >
+                  MAX ({formatNumber(user.coins)})
+                </Button>
               </div>
 
               {/* Play Button */}
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full"
+                className="w-full text-xl py-6"
                 onClick={playCoinflip}
                 isLoading={isFlipping}
-                disabled={betAmount < 10 || betAmount > user.coins}
+                disabled={betAmount < 10 || betAmount > user.coins || isFlipping}
               >
-                <Coins className="w-5 h-5 mr-2" />
-                Flip Coin
+                <Coins className="w-6 h-6 mr-2" />
+                {isFlipping ? 'Flipping...' : `Flip Coin (${formatNumber(betAmount)} coins)`}
               </Button>
             </CardContent>
           </Card>
 
-          {/* Stats Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Game Rules</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-bold mb-2">How to Play</h3>
-                <ul className="text-gray-400 space-y-2 text-sm">
-                  <li>• Choose heads or tails</li>
-                  <li>• Place your bet (minimum 10 coins)</li>
-                  <li>• If you guess correctly, you win 2x your bet</li>
-                  <li>• If you guess wrong, you lose your bet</li>
-                </ul>
-              </div>
-
-              <div className="border-t border-game-border pt-4">
-                <h3 className="font-bold mb-2">Your Stats</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Balance:</span>
-                    <span className="text-gold font-bold">{formatNumber(user.coins)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Win Chance:</span>
-                    <span className="font-bold">50%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Potential Win:</span>
-                    <span className="text-green-win font-bold">{formatNumber(betAmount * 2)}</span>
+          {/* Info Cards */}
+          <div className="space-y-6">
+            {/* Stats Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Game Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="p-3 bg-game-bg rounded-lg">
+                  <div className="text-xs text-gray-400 mb-1">Your Balance</div>
+                  <div className="text-xl text-gold font-bold">{formatNumber(user.coins)}</div>
+                </div>
+                <div className="p-3 bg-game-bg rounded-lg">
+                  <div className="text-xs text-gray-400 mb-1">Win Chance</div>
+                  <div className="text-xl font-bold">50.0%</div>
+                </div>
+                <div className="p-3 bg-game-bg rounded-lg">
+                  <div className="text-xs text-gray-400 mb-1">Current Bet</div>
+                  <div className="text-xl font-bold">{formatNumber(betAmount)}</div>
+                </div>
+                <div className="p-3 bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/50 rounded-lg">
+                  <div className="text-xs text-gray-400 mb-1">Potential Win</div>
+                  <div className="text-xl text-green-500 font-bold">
+                    +{formatNumber(betAmount * 2)}
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Rules Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>How to Play</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-gray-400 space-y-2 text-sm">
+                  <li className="flex items-start">
+                    <span className="text-gold mr-2">1.</span>
+                    <span>Choose Heads 👑 or Tails 🎯</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-gold mr-2">2.</span>
+                    <span>Enter your bet amount (min 10 coins)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-gold mr-2">3.</span>
+                    <span>Click "Flip Coin" and watch the magic!</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-gold mr-2">4.</span>
+                    <span>Win 2x your bet if you guess correctly!</span>
+                  </li>
+                </ul>
+
+                <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <div className="text-xs text-yellow-500 font-bold mb-1">💡 PRO TIP</div>
+                  <div className="text-xs text-gray-300">
+                    Start with smaller bets to build your balance safely!
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

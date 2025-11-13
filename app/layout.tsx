@@ -17,24 +17,34 @@ export default function RootLayout({
       <body>
         {children}
         <Toaster
-          position="top-right"
+          position="top-center"
+          containerStyle={{
+            top: 80,
+            zIndex: 9999,
+          }}
           toastOptions={{
             style: {
               background: '#1A1D29',
               color: '#fff',
               border: '1px solid #2A2D3A',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+              borderRadius: '8px',
+              padding: '16px',
+              maxWidth: '500px',
             },
             success: {
               iconTheme: {
                 primary: '#00FF9C',
                 secondary: '#1A1D29',
               },
+              duration: 3000,
             },
             error: {
               iconTheme: {
                 primary: '#FF4655',
                 secondary: '#1A1D29',
               },
+              duration: 4000,
             },
           }}
         />
