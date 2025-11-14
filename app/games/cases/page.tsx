@@ -6,7 +6,7 @@ import { useUser } from '@/lib/hooks/useUser'
 import { Navbar } from '@/components/layout/Navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Package, Star, Sparkles, Plus, Minus, ShoppingBag } from 'lucide-react'
+import { Package, Star, Sparkles, Plus, Minus, ShoppingBag, Swords, Users, Trophy, TrendingDown, Zap } from 'lucide-react'
 import { formatNumber } from '@/lib/utils/formatters'
 import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
@@ -16,156 +16,152 @@ const cases = [
     id: 'beginner',
     name: 'Beginner Case',
     price: 50,
-    color: 'bg-gray-600',
-    image: '📦',
+    emoji: '📦',
+    gradient: 'from-gray-600 to-gray-800',
     items: [
-      { name: 'P250 | Sand Dune', rarity: 'common', value: 30, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopujwezvEYw' },
-      { name: 'Glock-18 | Fade', rarity: 'uncommon', value: 80, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3djFN79eJnJm0k' },
-      { name: 'USP-S | Guardian', rarity: 'rare', value: 150, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m1FBRp3_bGcjhQ09Sv' },
-      { name: 'M4A4 | Asiimov', rarity: 'epic', value: 300, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alDL_Dl' },
-      { name: 'AWP | Dragon Lore', rarity: 'legendary', value: 800, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6-fkGRD6dNOh' },
+      { name: 'P250 | Sand Dune', rarity: 'common', value: 30, chance: 45, emoji: '🔫' },
+      { name: 'Glock-18 | Fade', rarity: 'uncommon', value: 80, chance: 35, emoji: '🔫' },
+      { name: 'USP-S | Guardian', rarity: 'rare', value: 150, chance: 15, emoji: '🔫' },
+      { name: 'M4A4 | Asiimov', rarity: 'epic', value: 300, chance: 4, emoji: '⚔️' },
+      { name: 'AWP | Dragon Lore', rarity: 'legendary', value: 800, chance: 1, emoji: '🎯' },
     ],
   },
   {
     id: 'starter',
     name: 'Starter Case',
     price: 100,
-    color: 'bg-green-600',
-    image: '🎁',
+    emoji: '🎁',
+    gradient: 'from-green-600 to-green-800',
     items: [
-      { name: 'AK-47 | Redline', rarity: 'common', value: 80, chance: 50, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqP' },
-      { name: 'M4A1-S | Hyper Beast', rarity: 'uncommon', value: 200, chance: 30, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uOxh7-Gw_alfqj' },
-      { name: 'AWP | Lightning Strike', rarity: 'rare', value: 400, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7lZKKqPv9NLPF' },
-      { name: '★ Karambit | Damascus Steel', rarity: 'epic', value: 800, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJlY20k_jkI6_T' },
-      { name: 'AK-47 | Fire Serpent', rarity: 'legendary', value: 1500, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV092lnYmGmOHLP7LWnn8fvZNz2e' },
+      { name: 'AK-47 | Redline', rarity: 'common', value: 80, chance: 50, emoji: '💥' },
+      { name: 'M4A1-S | Hyper Beast', rarity: 'uncommon', value: 200, chance: 30, emoji: '⚔️' },
+      { name: 'AWP | Lightning Strike', rarity: 'rare', value: 400, chance: 15, emoji: '🎯' },
+      { name: '★ Karambit | Damascus Steel', rarity: 'epic', value: 800, chance: 4, emoji: '🗡️' },
+      { name: 'AK-47 | Fire Serpent', rarity: 'legendary', value: 1500, chance: 1, emoji: '🔥' },
     ],
   },
   {
     id: 'premium',
     name: 'Premium Case',
     price: 500,
-    color: 'bg-blue-600',
-    image: '💎',
+    emoji: '💎',
+    gradient: 'from-blue-600 to-blue-800',
     items: [
-      { name: '★ Butterfly Knife | Vanilla', rarity: 'uncommon', value: 400, chance: 40, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqO' },
-      { name: '★ Karambit | Fade', rarity: 'rare', value: 900, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: 'M4A4 | Howl', rarity: 'epic', value: 2000, chance: 20, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09-5lpKKqPv9N' },
-      { name: 'AWP | Medusa', rarity: 'legendary', value: 4500, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FABz7PLfYQJS5NO0m5O0' },
-      { name: 'AWP | Dragon Lore (Souvenir)', rarity: 'mythic', value: 12000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6_ummpD78A_3L6YoY2h0VHgqkc' },
+      { name: '★ Butterfly Knife | Vanilla', rarity: 'uncommon', value: 400, chance: 40, emoji: '🗡️' },
+      { name: '★ Karambit | Fade', rarity: 'rare', value: 900, chance: 35, emoji: '🗡️' },
+      { name: 'M4A4 | Howl', rarity: 'epic', value: 2000, chance: 20, emoji: '🔥' },
+      { name: 'AWP | Medusa', rarity: 'legendary', value: 4500, chance: 4, emoji: '🐍' },
+      { name: 'AWP | Dragon Lore (Souvenir)', rarity: 'mythic', value: 12000, chance: 1, emoji: '🐉' },
     ],
   },
   {
     id: 'elite',
     name: 'Elite Case',
     price: 1000,
-    color: 'bg-purple-600',
-    image: '⚡',
+    emoji: '⚡',
+    gradient: 'from-purple-600 to-purple-800',
     items: [
-      { name: '★ Bayonet | Doppler', rarity: 'rare', value: 1200, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotLu8JAllx8zJfAFJ6dO7kZSEk' },
-      { name: '★ Karambit | Tiger Tooth', rarity: 'epic', value: 2500, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: '★ M9 Bayonet | Crimson Web', rarity: 'legendary', value: 6000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr3czxb49KzgL-KkP' },
-      { name: '★ Butterfly Knife | Doppler Sapphire', rarity: 'mythic', value: 18000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqP76DLfY' },
-      { name: 'AWP | Dragon Lore (Factory New)', rarity: 'divine', value: 60000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6-fw2pXu8B' },
+      { name: '★ Bayonet | Doppler', rarity: 'rare', value: 1200, chance: 45, emoji: '🗡️' },
+      { name: '★ Karambit | Tiger Tooth', rarity: 'epic', value: 2500, chance: 35, emoji: '🐯' },
+      { name: '★ M9 Bayonet | Crimson Web', rarity: 'legendary', value: 6000, chance: 15, emoji: '🕷️' },
+      { name: '★ Butterfly Knife | Doppler Sapphire', rarity: 'mythic', value: 18000, chance: 4, emoji: '💎' },
+      { name: 'AWP | Dragon Lore (Factory New)', rarity: 'divine', value: 60000, chance: 1, emoji: '👑' },
     ],
   },
   {
     id: 'vip',
     name: 'VIP Case',
     price: 2500,
-    color: 'bg-yellow-600',
-    image: '👑',
+    emoji: '👑',
+    gradient: 'from-yellow-500 to-yellow-700',
     items: [
-      { name: '★ Karambit | Lore', rarity: 'rare', value: 3000, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: '★ M9 Bayonet | Marble Fade', rarity: 'epic', value: 6000, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr4YzxO_uO1gb-Gw_' },
-      { name: '★ Karambit | Fade (Factory New)', rarity: 'legendary', value: 12000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: 'M4A4 | Howl (StatTrak™ FN)', rarity: 'mythic', value: 30000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09-5lpKKqPv9NrfQhFRd4cJ5nqe' },
-      { name: '★ Karambit | Case Hardened (Blue Gem)', rarity: 'divine', value: 100000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
+      { name: '★ Karambit | Lore', rarity: 'rare', value: 3000, chance: 45, emoji: '📜' },
+      { name: '★ M9 Bayonet | Marble Fade', rarity: 'epic', value: 6000, chance: 35, emoji: '🎨' },
+      { name: '★ Karambit | Fade (Factory New)', rarity: 'legendary', value: 12000, chance: 15, emoji: '🌈' },
+      { name: 'M4A4 | Howl (StatTrak™ FN)', rarity: 'mythic', value: 30000, chance: 4, emoji: '🔥' },
+      { name: '★ Karambit | Case Hardened (Blue Gem)', rarity: 'divine', value: 100000, chance: 1, emoji: '💠' },
     ],
   },
   {
     id: 'ultimate',
     name: 'Ultimate Case',
     price: 5000,
-    color: 'bg-red-600',
-    image: '🔥',
+    emoji: '🔥',
+    gradient: 'from-red-600 to-red-800',
     items: [
-      { name: '★ Sport Gloves | Pandora\'s Box', rarity: 'epic', value: 8000, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DAQ1h3LAVbv6mxFABs3OXNYgJR_Nm1nYGHnufj' },
-      { name: '★ Karambit | Doppler Ruby', rarity: 'legendary', value: 18000, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: '★ M9 Bayonet | Doppler Sapphire', rarity: 'mythic', value: 40000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr4YzxO_uO1gb-Gw_alDK' },
-      { name: '★ Karambit | Doppler Black Pearl', rarity: 'divine', value: 90000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: 'AWP | Dragon Lore (Souvenir FN)', rarity: 'divine', value: 250000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0m_7zO6_Yg' },
+      { name: '★ Sport Gloves | Pandora\'s Box', rarity: 'epic', value: 8000, chance: 45, emoji: '🧤' },
+      { name: '★ Karambit | Doppler Ruby', rarity: 'legendary', value: 18000, chance: 35, emoji: '💎' },
+      { name: '★ M9 Bayonet | Doppler Sapphire', rarity: 'mythic', value: 40000, chance: 15, emoji: '💎' },
+      { name: '★ Karambit | Doppler Black Pearl', rarity: 'divine', value: 90000, chance: 4, emoji: '🖤' },
+      { name: 'AWP | Dragon Lore (Souvenir FN)', rarity: 'divine', value: 250000, chance: 1, emoji: '🏆' },
     ],
   },
   {
     id: 'godlike',
     name: 'Godlike Case',
     price: 10000,
-    color: 'bg-pink-600',
-    image: '✨',
+    emoji: '✨',
+    gradient: 'from-pink-500 to-purple-700',
     items: [
-      { name: '★ Driver Gloves | Crimson Weave', rarity: 'legendary', value: 25000, chance: 45, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DAQ1JmMR1osbaqPQJz7ODYfi9W9eO7lZKMqP' },
-      { name: '★ Karambit | Gamma Doppler Emerald', rarity: 'mythic', value: 60000, chance: 35, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: 'Sticker | iBUYPOWER (Holo) | Katowice 2014', rarity: 'divine', value: 150000, chance: 15, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DAR1JbMQNu5Mv' },
-      { name: '★ Karambit | Case Hardened 661', rarity: 'divine', value: 350000, chance: 4, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLZ' },
-      { name: 'AK-47 | Case Hardened (Souvenir Pink DDPAT)', rarity: 'divine', value: 1000000, chance: 1, image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09Kvg' },
+      { name: '★ Driver Gloves | Crimson Weave', rarity: 'legendary', value: 25000, chance: 45, emoji: '🧤' },
+      { name: '★ Karambit | Gamma Doppler Emerald', rarity: 'mythic', value: 60000, chance: 35, emoji: '💚' },
+      { name: 'Sticker | iBUYPOWER (Holo) | Katowice 2014', rarity: 'divine', value: 150000, chance: 15, emoji: '🎨' },
+      { name: '★ Karambit | Case Hardened 661', rarity: 'divine', value: 350000, chance: 4, emoji: '💎' },
+      { name: 'AK-47 | Case Hardened (Souvenir Pink DDPAT)', rarity: 'divine', value: 1000000, chance: 1, emoji: '👑' },
     ],
   },
 ]
 
+const gameModes = [
+  { id: '1v1', name: '1v1 Battle', icon: '⚔️', desc: 'Classic duel - highest value wins', players: 2, teams: false },
+  { id: '2v2', name: '2v2 Team Battle', icon: '🤝', desc: 'Team up - combined value, shared pot', players: 4, teams: true },
+  { id: '1v1v1', name: '1v1v1 Free-For-All', icon: '👥', desc: 'Three-way showdown', players: 3, teams: false },
+  { id: '1+1', name: '1+1 Co-op', icon: '💰', desc: 'Play together, split the pot 50/50', players: 2, teams: true, coop: true },
+  { id: '1+1+1', name: '1+1+1 Co-op', icon: '💰', desc: 'Three players, equal split', players: 3, teams: true, coop: true },
+  { id: 'reverse', name: 'Reverse Mode', icon: '🔄', desc: 'Lowest value WINS!', players: 2, teams: false, reverse: true },
+  { id: 'crazy-jackpot', name: 'Crazy Jackpot', icon: '🎰', desc: 'Wheel of fortune based on your draws', players: 2, jackpot: true },
+]
+
 const rarityColors: Record<string, string> = {
-  common: 'from-gray-500 to-gray-600',
-  uncommon: 'from-green-500 to-green-600',
-  rare: 'from-blue-500 to-blue-600',
-  epic: 'from-purple-500 to-purple-600',
-  legendary: 'from-yellow-500 to-yellow-600',
-  mythic: 'from-red-500 to-red-600',
+  common: 'from-gray-500 to-gray-700',
+  uncommon: 'from-green-500 to-green-700',
+  rare: 'from-blue-500 to-blue-700',
+  epic: 'from-purple-500 to-purple-700',
+  legendary: 'from-yellow-500 to-yellow-700',
+  mythic: 'from-red-500 to-red-700',
   divine: 'from-pink-500 via-purple-500 to-blue-500',
 }
 
 const rarityGlow: Record<string, string> = {
-  common: 'shadow-[0_0_20px_rgba(156,163,175,0.5)]',
+  common: 'shadow-[0_0_15px_rgba(156,163,175,0.4)]',
   uncommon: 'shadow-[0_0_20px_rgba(34,197,94,0.5)]',
-  rare: 'shadow-[0_0_20px_rgba(59,130,246,0.5)]',
-  epic: 'shadow-[0_0_20px_rgba(168,85,247,0.5)]',
-  legendary: 'shadow-[0_0_30px_rgba(234,179,8,0.8)]',
-  mythic: 'shadow-[0_0_30px_rgba(239,68,68,0.8)]',
+  rare: 'shadow-[0_0_20px_rgba(59,130,246,0.6)]',
+  epic: 'shadow-[0_0_25px_rgba(168,85,247,0.7)]',
+  legendary: 'shadow-[0_0_30px_rgba(234,179,8,0.9)]',
+  mythic: 'shadow-[0_0_30px_rgba(239,68,68,0.9)]',
   divine: 'shadow-[0_0_40px_rgba(236,72,153,1)]',
 }
 
 export default function CasesPage() {
   const { user, isLoading, refreshUser, updateUser } = useUser()
   const router = useRouter()
+
   const [selectedCase, setSelectedCase] = useState(cases[0])
+  const [selectedMode, setSelectedMode] = useState(gameModes[0])
   const [casesAmount, setCasesAmount] = useState(1)
   const [isOpening, setIsOpening] = useState(false)
-  const [wonItems, setWonItems] = useState<any[]>([])
-  const [reelItems, setReelItems] = useState<any[]>([])
-  const [isAnimating, setIsAnimating] = useState(false)
+  const [playerResults, setPlayerResults] = useState<any[]>([])
   const [currentRound, setCurrentRound] = useState(0)
-  const reelRef = useRef<HTMLDivElement>(null)
+  const [showResults, setShowResults] = useState(false)
+  const [winner, setWinner] = useState<any>(null)
+  const [wheelRotation, setWheelRotation] = useState(0)
+  const [isSpinning, setIsSpinning] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login')
     }
   }, [user, isLoading, router])
-
-  const generateReelItems = (winningItem: any) => {
-    const items = []
-    const totalItems = 50
-
-    // Fill with random items
-    for (let i = 0; i < totalItems; i++) {
-      const randomItem = selectedCase.items[Math.floor(Math.random() * selectedCase.items.length)]
-      items.push({ ...randomItem, id: i })
-    }
-
-    // Place winning item at a specific position (around 80% through)
-    const winPosition = Math.floor(totalItems * 0.8)
-    items[winPosition] = { ...winningItem, id: winPosition }
-
-    return items
-  }
 
   const determineWonItem = () => {
     const random = Math.random() * 100
@@ -180,113 +176,184 @@ export default function CasesPage() {
     return selectedCase.items[0]
   }
 
+  const simulatePlayer = (playerName: string) => {
+    const items = []
+    let totalValue = 0
+
+    for (let i = 0; i < casesAmount; i++) {
+      const item = determineWonItem()
+      items.push(item)
+      totalValue += item.value
+    }
+
+    return { name: playerName, items, totalValue }
+  }
+
   const openCases = async () => {
-    if (!user || selectedCase.price * casesAmount > user.coins) {
+    if (!user) return
+
+    const totalCost = selectedCase.price * casesAmount
+    if (totalCost > user.coins) {
       toast.error('Insufficient coins')
       return
     }
 
+    // Deduct cost immediately
+    const newBalance = user.coins - totalCost
+    updateUser({ coins: newBalance })
+    await supabase.from('users').update({ coins: newBalance }).eq('id', user.id)
+
     setIsOpening(true)
-    setWonItems([])
+    setPlayerResults([])
     setCurrentRound(0)
+    setShowResults(false)
+    setWinner(null)
 
-    const itemsWon: any[] = []
+    // Simulate all players
+    const results = []
+    const playerCount = selectedMode.id === 'crazy-jackpot' ? Math.floor(Math.random() * 3) + 2 : selectedMode.players
 
-    // Open all cases
-    for (let i = 0; i < casesAmount; i++) {
-      const item = determineWonItem()
-      itemsWon.push(item)
+    // Player 1 (user)
+    results.push(simulatePlayer(user.username || 'You'))
+
+    // Other players (AI)
+    for (let i = 1; i < playerCount; i++) {
+      results.push(simulatePlayer(`Player ${i + 1}`))
     }
 
-    // Animate each round
+    // Animate rounds
     for (let round = 0; round < casesAmount; round++) {
       setCurrentRound(round + 1)
-      setIsAnimating(false)
-      setReelItems([])
-
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      const items = generateReelItems(itemsWon[round])
-      setReelItems(items)
-
-      await new Promise(resolve => setTimeout(resolve, 100))
-      setIsAnimating(true)
-
-      // Wait for animation
-      await new Promise(resolve => setTimeout(resolve, 5000))
-      setWonItems(prev => [...prev, itemsWon[round]])
-      setIsAnimating(false)
-
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 1500))
     }
 
-    // Save all items to database
+    setPlayerResults(results)
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // Determine winner based on mode
+    let winnerResult
+    if (selectedMode.jackpot) {
+      // Crazy Jackpot mode
+      await spinJackpotWheel(results)
+    } else if (selectedMode.reverse) {
+      // Reverse mode - LOWEST wins
+      winnerResult = results.reduce((min, p) => p.totalValue < min.totalValue ? p : min)
+      setWinner(winnerResult)
+    } else if (selectedMode.coop) {
+      // Co-op mode - all players win together, pot split
+      setWinner({ name: 'Everyone', isCoop: true })
+    } else if (selectedMode.teams && selectedMode.id === '2v2') {
+      // 2v2 mode - team with higher combined value wins
+      const team1Value = results[0].totalValue + results[1].totalValue
+      const team2Value = results[2].totalValue + results[3].totalValue
+      winnerResult = team1Value > team2Value
+        ? { name: 'Team 1', players: [results[0], results[1]], totalValue: team1Value }
+        : { name: 'Team 2', players: [results[2], results[3]], totalValue: team2Value }
+      setWinner(winnerResult)
+    } else {
+      // Standard modes - highest wins
+      winnerResult = results.reduce((max, p) => p.totalValue > max.totalValue ? p : max)
+      setWinner(winnerResult)
+    }
+
+    setShowResults(true)
+
+    // Calculate rewards
     try {
-      const totalCost = selectedCase.price * casesAmount
-      const totalValue = itemsWon.reduce((sum, item) => sum + item.value, 0)
-      const profit = totalValue - totalCost
+      const userResult = results[0]
+      const isUserWinner = winnerResult?.name === userResult.name ||
+                           (winnerResult as any)?.isCoop ||
+                           (winnerResult as any)?.players?.some((p: any) => p.name === userResult.name)
+
+      let reward = 0
+      if (isUserWinner) {
+        if (selectedMode.coop) {
+          // Split pot equally
+          const totalPot = results.reduce((sum, p) => sum + p.totalValue, 0)
+          reward = Math.floor(totalPot / playerCount)
+        } else if (selectedMode.teams && selectedMode.id === '2v2') {
+          // Split team pot
+          reward = Math.floor((winnerResult as any).totalValue / 2)
+        } else {
+          // Winner takes all (pot multiplier)
+          reward = userResult.totalValue * (playerCount === 2 ? 1.8 : playerCount === 3 ? 2.5 : 3)
+        }
+      } else {
+        reward = 0 // Lost
+      }
+
+      const finalBalance = user.coins + reward
       const xpGain = Math.floor(totalCost / 10)
-      const newCoins = user.coins + profit
       const newXp = user.xp + xpGain
 
-      // Optimistically update UI
-      updateUser({ coins: newCoins, xp: newXp })
+      updateUser({ coins: finalBalance, xp: newXp })
 
-      // Update user
-      const { error: userError } = await supabase
-        .from('users')
-        .update({
-          coins: newCoins,
-          xp: newXp,
-        })
-        .eq('id', user.id)
+      await supabase.from('users').update({
+        coins: finalBalance,
+        xp: newXp,
+        games_played: user.games_played + 1,
+        games_won: isUserWinner ? user.games_won + 1 : user.games_won,
+      }).eq('id', user.id)
 
-      if (userError) throw userError
+      // Save game
+      await supabase.from('games').insert({
+        player_id: user.id,
+        type: 'case_battle',
+        bet_amount: totalCost,
+        result: isUserWinner ? 'win' : 'loss',
+        payout: reward,
+        multiplier: playerCount,
+      })
 
-      // Add items to inventory
-      const inventoryItems = itemsWon.map(item => ({
-        owner_id: user.id,
-        name: item.name,
-        rarity: item.rarity,
-        value: item.value,
-        case_id: selectedCase.id,
-      }))
+      await supabase.from('transactions').insert({
+        user_id: user.id,
+        type: isUserWinner ? 'game_win' : 'game_loss',
+        amount: reward - totalCost,
+        description: `Case Battle ${selectedMode.name} - ${isUserWinner ? 'Won' : 'Lost'}`,
+      })
 
-      const { error: itemsError } = await supabase
-        .from('items')
-        .insert(inventoryItems)
-
-      if (itemsError) throw itemsError
-
-      // Save game history
-      await supabase.from('games').insert([
-        {
-          player_id: user.id,
-          type: 'cases',
-          bet_amount: totalCost,
-          result: profit > 0 ? 'win' : 'loss',
-          payout: totalValue,
-          item_name: itemsWon.map(i => i.name).join(', '),
-        },
-      ])
-
-      if (profit > 0) {
-        toast.success(`🎉 Opened ${casesAmount} case${casesAmount > 1 ? 's' : ''}! Total value: ${formatNumber(totalValue)} | Profit: +${formatNumber(profit)}`, {
-          duration: 5000,
-          icon: '🔥',
-        })
+      if (isUserWinner) {
+        toast.success(`🎉 ${selectedMode.name} Victory! Won ${formatNumber(reward)} coins!`, { duration: 5000 })
       } else {
-        toast.error(`Opened ${casesAmount} case${casesAmount > 1 ? 's' : ''}. Total value: ${formatNumber(totalValue)} | Loss: ${formatNumber(Math.abs(profit))}`, {
-          duration: 5000,
-        })
+        toast.error(`Lost ${selectedMode.name}. Better luck next time!`, { duration: 3000 })
       }
     } catch (error) {
-      toast.error('Failed to open cases')
+      console.error('Error:', error)
       await refreshUser()
     } finally {
       setIsOpening(false)
-      setCurrentRound(0)
     }
+  }
+
+  const spinJackpotWheel = async (results: any[]) => {
+    setIsSpinning(true)
+
+    // Calculate percentages
+    const totalValue = results.reduce((sum, p) => sum + p.totalValue, 0)
+    const percentages = results.map(p => ({
+      ...p,
+      percentage: (p.totalValue / totalValue) * 100
+    }))
+
+    // Spin wheel
+    const spins = 5 + Math.random() * 2
+    const winnerIndex = Math.random() * 100
+    let cumulative = 0
+    let selectedIndex = 0
+    for (let i = 0; i < percentages.length; i++) {
+      cumulative += percentages[i].percentage
+      if (winnerIndex <= cumulative) {
+        selectedIndex = i
+        break
+      }
+    }
+
+    const degrees = 360 * spins + (selectedIndex / percentages.length) * 360
+    setWheelRotation(degrees)
+
+    await new Promise(resolve => setTimeout(resolve, 5000))
+    setWinner(results[selectedIndex])
+    setIsSpinning(false)
   }
 
   if (isLoading || !user) {
@@ -307,10 +374,13 @@ export default function CasesPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">
-              <span className="text-gradient-gold">Case Opening</span>
+            <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+              <Package className="w-10 h-10 text-yellow-500" />
+              <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
+                Case Battles
+              </span>
             </h1>
-            <p className="text-gray-400">Open cases to win valuable items!</p>
+            <p className="text-gray-400">Choose your mode and battle for glory!</p>
           </div>
           <Button
             variant="secondary"
@@ -318,73 +388,109 @@ export default function CasesPage() {
             className="flex items-center gap-2"
           >
             <ShoppingBag className="w-5 h-5" />
-            View Inventory
+            Inventory
           </Button>
         </div>
 
-        {/* Case Selection Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-          {cases.map((caseItem) => (
-            <button
-              key={caseItem.id}
-              onClick={() => {
-                setSelectedCase(caseItem)
-                setWonItems([])
-                setReelItems([])
-              }}
-              disabled={isOpening}
-              className={`p-4 rounded-lg border-2 transition-all ${
-                selectedCase.id === caseItem.id
-                  ? 'border-gold bg-gold/10 scale-105 shadow-[0_0_20px_rgba(234,179,8,0.3)]'
-                  : 'border-game-border bg-game-card hover:border-gold/50 hover:scale-102'
-              } ${isOpening ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-            >
-              <div className="text-5xl mb-2">{caseItem.image}</div>
-              <p className="font-bold text-sm mb-1 truncate">{caseItem.name}</p>
-              <p className="text-gold font-bold text-xs">{formatNumber(caseItem.price)}</p>
-            </button>
-          ))}
-        </div>
-
-        {/* Amount Selector */}
-        <Card className="mb-6">
+        {/* Game Mode Selection */}
+        <Card className="mb-6 bg-gradient-to-br from-orange-900/20 to-red-900/10 border-orange-500/30">
           <CardHeader>
-            <CardTitle>Select Amount</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Swords className="w-6 h-6 text-orange-500" />
+              Select Battle Mode
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              {gameModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  onClick={() => setSelectedMode(mode)}
+                  disabled={isOpening}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    selectedMode.id === mode.id
+                      ? 'border-orange-500 bg-orange-500/20 scale-105 shadow-lg shadow-orange-500/30'
+                      : 'border-gray-700 bg-gray-800/50 hover:border-orange-500/50 hover:scale-102'
+                  } ${isOpening ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <div className="text-4xl mb-2">{mode.icon}</div>
+                  <p className="font-bold text-sm mb-1">{mode.name}</p>
+                  <p className="text-xs text-gray-400">{mode.desc}</p>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Case Selection */}
+        <Card className="mb-6 bg-gradient-to-br from-purple-900/20 to-blue-900/10 border-purple-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="w-6 h-6 text-purple-500" />
+              Select Case
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              {cases.map((caseItem) => (
+                <button
+                  key={caseItem.id}
+                  onClick={() => setSelectedCase(caseItem)}
+                  disabled={isOpening}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    selectedCase.id === caseItem.id
+                      ? 'border-purple-500 bg-purple-500/20 scale-105 shadow-lg shadow-purple-500/30'
+                      : 'border-gray-700 bg-gray-800/50 hover:border-purple-500/50 hover:scale-102'
+                  } ${isOpening ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <div className="text-5xl mb-2">{caseItem.emoji}</div>
+                  <p className="font-bold text-sm mb-1 truncate">{caseItem.name}</p>
+                  <p className="text-yellow-400 font-bold text-xs">{formatNumber(caseItem.price)}</p>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Rounds Selection */}
+        <Card className="mb-6 bg-gradient-to-br from-cyan-900/20 to-blue-900/10 border-cyan-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="w-6 h-6 text-cyan-500" />
+              Number of Rounds (Cases per player)
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
               <Button
                 variant="secondary"
-                size="sm"
                 onClick={() => setCasesAmount(Math.max(1, casesAmount - 1))}
                 disabled={isOpening || casesAmount <= 1}
               >
-                <Minus className="w-4 h-4" />
+                <Minus className="w-5 h-5" />
               </Button>
               <div className="flex-1 text-center">
-                <div className="text-4xl font-bold text-gold">{casesAmount}</div>
-                <div className="text-sm text-gray-400">
-                  {casesAmount === 1 ? 'case' : 'cases'} • Total: {formatNumber(totalCost)} coins
+                <div className="text-5xl font-bold text-cyan-400">{casesAmount}</div>
+                <div className="text-sm text-gray-400 mt-2">
+                  {casesAmount === 1 ? 'round' : 'rounds'} • Cost: {formatNumber(totalCost)} coins
                 </div>
               </div>
               <Button
                 variant="secondary"
-                size="sm"
                 onClick={() => setCasesAmount(Math.min(10, casesAmount + 1))}
                 disabled={isOpening || casesAmount >= 10}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5" />
               </Button>
             </div>
             <div className="grid grid-cols-5 gap-2 mt-4">
-              {[1, 2, 3, 5, 10].map((amount) => (
+              {[1, 3, 5, 7, 10].map((amount) => (
                 <Button
                   key={amount}
                   variant="ghost"
-                  size="sm"
                   onClick={() => setCasesAmount(amount)}
                   disabled={isOpening}
-                  className="font-bold"
+                  className={`font-bold ${casesAmount === amount ? 'bg-cyan-500/20 border-cyan-500' : ''}`}
                 >
                   {amount}x
                 </Button>
@@ -393,183 +499,211 @@ export default function CasesPage() {
           </CardContent>
         </Card>
 
-        {/* Opening Area */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>
-                Open {selectedCase.name}
-                {isOpening && currentRound > 0 && ` (${currentRound}/${casesAmount})`}
-              </span>
-              <span className="text-gold text-lg">{formatNumber(user.coins)} coins</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Reel Container */}
-            <div className="mb-6">
-              <div className="relative w-full h-48 bg-gradient-to-b from-game-bg via-game-card to-game-bg rounded-lg overflow-hidden">
-                {/* Center indicator line */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-gold to-transparent z-20 transform -translate-x-1/2" />
-                <div className="absolute left-1/2 top-1/2 w-32 h-32 border-4 border-gold rounded-lg transform -translate-x-1/2 -translate-y-1/2 z-10 shadow-[0_0_30px_rgba(234,179,8,0.5)]" />
+        {/* Battle Arena */}
+        {!showResults ? (
+          <Card className="mb-6 bg-gradient-to-br from-yellow-900/30 to-orange-900/20 border-yellow-500/40">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Trophy className="w-6 h-6 text-yellow-500" />
+                  Battle Arena
+                  {isOpening && currentRound > 0 && (
+                    <span className="text-cyan-400 ml-2">Round {currentRound}/{casesAmount}</span>
+                  )}
+                </span>
+                <span className="text-yellow-400">{formatNumber(user.coins)} coins</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-20">
+                <div className="text-8xl mb-6 animate-bounce">{selectedCase.emoji}</div>
+                <h2 className="text-3xl font-bold mb-4">
+                  {selectedMode.name} - {selectedCase.name}
+                </h2>
+                <p className="text-gray-400 mb-2">{selectedMode.desc}</p>
+                <p className="text-xl text-cyan-400 font-bold mb-8">
+                  {casesAmount} rounds • {selectedMode.players} players
+                </p>
 
-                {/* Reel */}
-                {reelItems.length > 0 ? (
-                  <div
-                    ref={reelRef}
-                    className={`flex absolute left-0 top-1/2 transform -translate-y-1/2 transition-all ${
-                      isAnimating ? 'duration-[5000ms] ease-out' : 'duration-0'
-                    }`}
-                    style={{
-                      transform: isAnimating
-                        ? `translate(calc(50vw - ${reelItems.length * 0.8 * 150}px), -50%)`
-                        : 'translate(50vw, -50%)',
-                    }}
-                  >
-                    {reelItems.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`flex-shrink-0 w-32 h-32 mx-2 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} p-0.5 ${rarityGlow[item.rarity]}`}
-                      >
-                        <div className="w-full h-full bg-game-card rounded-lg flex flex-col items-center justify-center p-2">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-20 h-16 object-contain mb-1"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none'
-                              e.currentTarget.nextElementSibling?.classList.remove('hidden')
-                            }}
-                          />
-                          <Star className="w-12 h-12 mb-1 hidden" />
-                          <p className="text-xs text-center font-bold truncate w-full">{item.name}</p>
-                          <p className="text-xs text-gray-400 capitalize">{item.rarity}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center text-gray-400">
-                      <div className="text-6xl mb-4">{selectedCase.image}</div>
-                      <p className="text-lg font-bold">Ready to open!</p>
-                      <p className="text-sm">Click "Open Cases" to start</p>
-                    </div>
-                  </div>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="text-xl py-6 px-12 bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 hover:from-yellow-500 hover:via-orange-500 hover:to-red-500 font-bold shadow-lg shadow-yellow-500/30"
+                  onClick={openCases}
+                  isLoading={isOpening}
+                  disabled={!canAfford || isOpening}
+                >
+                  {isOpening
+                    ? `Battle in Progress... Round ${currentRound}/${casesAmount}`
+                    : `Start Battle • ${formatNumber(totalCost)} coins`}
+                </Button>
+
+                {!canAfford && (
+                  <p className="text-red-500 mt-4 font-bold">
+                    Need {formatNumber(totalCost - user.coins)} more coins!
+                  </p>
                 )}
               </div>
-            </div>
-
-            {/* Won Items Display */}
-            {wonItems.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Sparkles className="w-6 h-6 text-gold" />
-                  Items Won ({wonItems.length})
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  {wonItems.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className={`p-0.5 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} ${rarityGlow[item.rarity]} animate-pulse-slow`}
-                    >
-                      <div className="bg-game-card rounded-lg p-4 h-full">
-                        <div className="w-full h-20 flex items-center justify-center mb-2">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="max-w-full max-h-full object-contain"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none'
-                              e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden')
-                            }}
-                          />
-                          <Star className="w-12 h-12 fallback-icon hidden" />
-                        </div>
-                        <p className={`font-bold text-center mb-1 text-sm bg-gradient-to-r ${rarityColors[item.rarity]} bg-clip-text text-transparent`}>
-                          {item.name}
-                        </p>
-                        <p className="text-xs text-gray-400 text-center capitalize mb-2">{item.rarity}</p>
-                        <p className="text-gold font-bold text-center text-lg">{formatNumber(item.value)}</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {/* Crazy Jackpot Wheel */}
+            {selectedMode.jackpot && (
+              <Card className="mb-6 bg-gradient-to-br from-purple-900/30 to-pink-900/20 border-pink-500/40">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-6 h-6 text-pink-500 animate-spin" />
+                    Crazy Jackpot Wheel
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative w-full max-w-md mx-auto aspect-square">
+                    {/* Wheel */}
+                    <div className="absolute inset-0 rounded-full overflow-hidden border-8 border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.8)]">
+                      <div
+                        className="absolute inset-0 transition-transform duration-[5000ms] ease-out"
+                        style={{
+                          transform: `rotate(${wheelRotation}deg)`,
+                          background: `conic-gradient(${playerResults.map((p, idx) => {
+                            const totalValue = playerResults.reduce((sum, pl) => sum + pl.totalValue, 0)
+                            const percentage = (p.totalValue / totalValue) * 100
+                            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
+                            return `${colors[idx % colors.length]} ${idx * (360 / playerResults.length)}deg ${(idx + 1) * (360 / playerResults.length)}deg`
+                          }).join(', ')})`,
+                        }}
+                      >
+                        {playerResults.map((player, idx) => {
+                          const angle = (idx / playerResults.length) * 360 + (360 / playerResults.length / 2)
+                          const totalValue = playerResults.reduce((sum, p) => sum + p.totalValue, 0)
+                          const percentage = ((player.totalValue / totalValue) * 100).toFixed(1)
+                          return (
+                            <div
+                              key={idx}
+                              className="absolute top-1/2 left-1/2 origin-left"
+                              style={{
+                                transform: `rotate(${angle}deg) translateX(40%)`,
+                              }}
+                            >
+                              <div className="text-white font-bold text-lg bg-black/50 px-2 py-1 rounded">
+                                {player.name}: {percentage}%
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-4 p-4 bg-gradient-to-r from-gold/10 to-gold/5 border border-gold/30 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold">Total Value:</span>
-                    <span className="text-2xl font-bold text-gold">
-                      {formatNumber(wonItems.reduce((sum, item) => sum + item.value, 0))}
-                    </span>
+
+                    {/* Pointer */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10">
+                      <div className="w-6 h-12 bg-yellow-500 clip-triangle shadow-lg"></div>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-sm text-gray-400">Cost:</span>
-                    <span className="text-lg font-bold">{formatNumber(totalCost)}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-lg font-bold">Profit/Loss:</span>
-                    <span className={`text-2xl font-bold ${wonItems.reduce((sum, item) => sum + item.value, 0) - totalCost >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {wonItems.reduce((sum, item) => sum + item.value, 0) - totalCost >= 0 ? '+' : ''}
-                      {formatNumber(wonItems.reduce((sum, item) => sum + item.value, 0) - totalCost)}
-                    </span>
-                  </div>
-                </div>
-              </div>
+
+                  {!isSpinning && winner && (
+                    <div className="text-center mt-6">
+                      <p className="text-3xl font-bold text-yellow-400 animate-bounce">
+                        🎉 {winner.name} wins the jackpot! 🎉
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             )}
 
-            {/* Open Button */}
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full text-xl py-6"
-              onClick={openCases}
-              isLoading={isOpening}
-              disabled={!canAfford || isOpening}
-            >
-              <Package className="w-6 h-6 mr-2" />
-              {isOpening
-                ? `Opening... ${currentRound}/${casesAmount}`
-                : `Open ${casesAmount}x ${selectedCase.name} (${formatNumber(totalCost)} coins)`}
-            </Button>
+            {/* Battle Results */}
+            <Card className="mb-6 bg-gradient-to-br from-green-900/30 to-blue-900/20 border-green-500/40">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Trophy className="w-6 h-6 text-yellow-500" />
+                  Battle Results
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  {playerResults.map((player, idx) => {
+                    const isWinner = winner?.name === player.name ||
+                                   (winner as any)?.isCoop ||
+                                   (winner as any)?.players?.some((p: any) => p.name === player.name)
 
-            {!canAfford && (
-              <p className="text-center text-red-500 mt-2 font-bold">
-                Insufficient coins! Need {formatNumber(totalCost - user.coins)} more
-              </p>
-            )}
-          </CardContent>
-        </Card>
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-6 rounded-lg border-2 transition-all ${
+                          isWinner
+                            ? 'border-yellow-500 bg-gradient-to-br from-yellow-600/30 to-yellow-800/20 scale-105 shadow-lg shadow-yellow-500/50'
+                            : 'border-gray-700 bg-gray-800/50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-bold">{player.name}</h3>
+                          {isWinner && <Trophy className="w-8 h-8 text-yellow-400 animate-bounce" />}
+                        </div>
+
+                        <div className="space-y-2 mb-4">
+                          {player.items.map((item: any, itemIdx: number) => (
+                            <div
+                              key={itemIdx}
+                              className={`p-2 rounded-lg bg-gradient-to-r ${rarityColors[item.rarity]} ${rarityGlow[item.rarity]}`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">{item.emoji}</span>
+                                <div className="flex-1">
+                                  <p className="text-xs font-bold truncate">{item.name}</p>
+                                  <p className="text-xs text-gray-300">{formatNumber(item.value)}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="text-center p-3 bg-black/30 rounded-lg">
+                          <p className="text-sm text-gray-400">Total Value</p>
+                          <p className="text-2xl font-bold text-yellow-400">
+                            {formatNumber(player.totalValue)}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="text-center p-6 bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border border-yellow-500/40 rounded-lg">
+                  <p className="text-2xl font-bold mb-2">
+                    {(winner as any)?.isCoop ? '🤝 Co-op Victory!' :
+                     (winner as any)?.players ? `🏆 ${winner.name} Wins!` :
+                     `🏆 ${winner?.name} is the Champion!`}
+                  </p>
+                  <p className="text-gray-400">
+                    {selectedMode.coop ? 'Pot split equally among all players' :
+                     selectedMode.reverse ? 'Lowest value wins in Reverse Mode!' :
+                     selectedMode.jackpot ? 'Decided by the wheel of fortune!' :
+                     'Winner takes the glory!'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         {/* Case Details */}
-        <Card>
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 border-gray-700/50">
           <CardHeader>
-            <CardTitle>Possible Items in {selectedCase.name}</CardTitle>
+            <CardTitle>Items in {selectedCase.name}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {selectedCase.items.map((item, idx) => (
                 <div
                   key={idx}
-                  className={`p-0.5 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} ${rarityGlow[item.rarity]} hover:scale-105 transition-transform`}
+                  className={`p-4 rounded-lg bg-gradient-to-br ${rarityColors[item.rarity]} ${rarityGlow[item.rarity]} hover:scale-105 transition-transform`}
                 >
-                  <div className="bg-game-card rounded-lg p-4 h-full">
-                    <div className="w-full h-20 flex items-center justify-center mb-2">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="max-w-full max-h-full object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                          e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden')
-                        }}
-                      />
-                      <Star className="w-12 h-12 fallback-icon hidden" />
-                    </div>
-                    <p className={`font-bold text-center mb-1 bg-gradient-to-r ${rarityColors[item.rarity]} bg-clip-text text-transparent`}>
-                      {item.name}
-                    </p>
-                    <p className="text-sm text-gray-400 text-center capitalize mb-2">{item.rarity}</p>
-                    <p className="text-gold font-bold text-center text-lg">{formatNumber(item.value)}</p>
-                    <p className="text-xs text-gray-400 text-center">{item.chance}% chance</p>
+                  <div className="text-center">
+                    <div className="text-5xl mb-2">{item.emoji}</div>
+                    <p className="font-bold text-sm mb-1 truncate">{item.name}</p>
+                    <p className="text-xs text-gray-300 capitalize mb-2">{item.rarity}</p>
+                    <p className="text-yellow-400 font-bold">{formatNumber(item.value)}</p>
+                    <p className="text-xs text-gray-400">{item.chance}%</p>
                   </div>
                 </div>
               ))}
@@ -577,6 +711,19 @@ export default function CasesPage() {
           </CardContent>
         </Card>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 2s ease-in-out infinite;
+        }
+        .clip-triangle {
+          clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+      `}</style>
     </div>
   )
 }
